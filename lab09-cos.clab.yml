@@ -1,0 +1,48 @@
+# Lab 9 — Class of Service (CoS)
+# 4x vJunos-router. Primary CoS lab is R1-R2. R3 and R4 are optional traffic sources.
+#
+# Interface mapping: eth1=ge-0/0/0, eth2=ge-0/0/1
+#
+# Topology:
+#
+#   R3 ----[10.0.13.0/30]---- R1 ----[10.0.12.0/30]---- R2 ----[10.0.24.0/30]---- R4
+#                                    ^-- primary CoS link --^
+#
+# The R1-R2 link (ge-0/0/0 on both) is where CoS is applied and observed.
+# R3 and R4 provide additional traffic sources to drive queue load.
+#
+# CoS applied on R1 ge-0/0/0 (egress toward R2):
+#   - DSCP classifier: MY-DSCP-CLASSIFIER
+#   - Scheduler map:   MY-SCHEDULER-MAP
+#   - Forwarding classes: BEST-EFFORT (q0), ASSURED-FORWARDING (q1),
+#                         EXPEDITED-FORWARDING (q5), NETWORK-CONTROL (q7)
+#
+# Addressing:
+#   R1 lo0: 10.0.0.1/32   R2 lo0: 10.0.0.2/32
+#   R3 lo0: 10.0.0.3/32   R4 lo0: 10.0.0.4/32
+#
+#   R1 ge-0/0/0 — R2 ge-0/0/0  : 10.0.12.1/30 — 10.0.12.2/30  (primary CoS link)
+#   R1 ge-0/0/1 — R3 ge-0/0/0  : 10.0.13.1/30 — 10.0.13.2/30  (optional traffic source)
+#   R2 ge-0/0/1 — R4 ge-0/0/0  : 10.0.24.1/30 — 10.0.24.2/30  (optional traffic source)
+
+name: lab09-cos
+
+topology:
+  kinds:
+    vr-vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r1:
+      kind: vr-vjunosrouter
+    r2:
+      kind: vr-vjunosrouter
+    r3:
+      kind: vr-vjunosrouter
+    r4:
+      kind: vr-vjunosrouter
+
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"]  # R1 ge-0/0/0 — R2 ge-0/0/0  10.0.12.0/30  PRIMARY CoS link
+    - endpoints: ["r1:eth2", "r3:eth1"]  # R1 ge-0/0/1 — R3 ge-0/0/0  10.0.13.0/30  optional traffic source
+    - endpoints: ["r2:eth2", "r4:eth1"]  # R2 ge-0/0/1 — R4 ge-0/0/0  10.0.24.0/30  optional traffic source

@@ -1,0 +1,48 @@
+# Lab 4 — IS-IS
+# Same physical topology as Lab 1. Disable OSPF before starting.
+#
+# Interface mapping: eth1=ge-0/0/0, eth2=ge-0/0/1
+#
+# IS-IS roles and NET addresses:
+#   R1: L1/L2  NET 49.0001.0100.0000.0001.00  Area 49.0001
+#   R2: L2     NET 49.0001.0100.0000.0002.00  Area 49.0001
+#   R3: L1     NET 49.0002.0100.0000.0003.00  Area 49.0002
+#   R4: L1     NET 49.0002.0100.0000.0004.00  Area 49.0002
+#
+# Link levels (configured, not wired):
+#   R1-R2 (ge-0/0/0): L2 only
+#   R1-R3 (ge-0/0/1): L1/L2
+#   R2-R4 (ge-0/0/1): L2 only
+#   R3-R4 (ge-0/0/1 on both): L1 only
+#
+# Addressing (same as Lab 1):
+#   R1 lo0: 10.0.0.1/32   R2 lo0: 10.0.0.2/32
+#   R3 lo0: 10.0.0.3/32   R4 lo0: 10.0.0.4/32
+#
+#   R1 ge-0/0/0 — R2 ge-0/0/0  : 10.0.12.1/30 — 10.0.12.2/30
+#   R1 ge-0/0/1 — R3 ge-0/0/0  : 10.0.13.1/30 — 10.0.13.2/30
+#   R2 ge-0/0/1 — R4 ge-0/0/0  : 10.0.24.1/30 — 10.0.24.2/30
+#   R3 ge-0/0/1 — R4 ge-0/0/1  : 10.0.34.1/30 — 10.0.34.2/30
+
+name: lab04-isis
+
+topology:
+  kinds:
+    vr-vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r1:
+      kind: vr-vjunosrouter
+    r2:
+      kind: vr-vjunosrouter
+    r3:
+      kind: vr-vjunosrouter
+    r4:
+      kind: vr-vjunosrouter
+
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"]  # R1 ge-0/0/0 — R2 ge-0/0/0  10.0.12.0/30  L2 only
+    - endpoints: ["r1:eth2", "r3:eth1"]  # R1 ge-0/0/1 — R3 ge-0/0/0  10.0.13.0/30  L1/L2
+    - endpoints: ["r2:eth2", "r4:eth1"]  # R2 ge-0/0/1 — R4 ge-0/0/0  10.0.24.0/30  L2 only
+    - endpoints: ["r3:eth2", "r4:eth2"]  # R3 ge-0/0/1 — R4 ge-0/0/1  10.0.34.0/30  L1 only
