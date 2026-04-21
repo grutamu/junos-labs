@@ -34,18 +34,18 @@ name: lab08-layer2-switching
 
 topology:
   kinds:
-    vr-vjunosswitch:
+    juniper_vjunosswitch:
       image: vrnetlab/juniper_vjunos-switch:25.4R1.12
 
   nodes:
     sw1:
-      kind: vr-vjunosswitch
+      kind: juniper_vjunosswitch
     sw2:
-      kind: vr-vjunosswitch
+      kind: juniper_vjunosswitch
     sw3:
-      kind: vr-vjunosswitch
+      kind: juniper_vjunosswitch
     sw4:
-      kind: vr-vjunosswitch
+      kind: juniper_vjunosswitch
 
   links:
     - endpoints: ["sw1:eth1", "sw2:eth1"]  # SW1 ge-0/0/0 — SW2 ge-0/0/0  LAG (ae0) member 1

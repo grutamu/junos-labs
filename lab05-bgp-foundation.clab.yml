@@ -29,18 +29,18 @@ name: lab05-bgp-foundation
 
 topology:
   kinds:
-    vr-vjunosrouter:
+    juniper_vjunosrouter:
       image: vrnetlab/juniper_vjunos-router:25.4R1.12
 
   nodes:
     r1:
-      kind: vr-vjunosrouter
+      kind: juniper_vjunosrouter
     r2:
-      kind: vr-vjunosrouter
+      kind: juniper_vjunosrouter
     r3:
-      kind: vr-vjunosrouter
+      kind: juniper_vjunosrouter
     r4:
-      kind: vr-vjunosrouter
+      kind: juniper_vjunosrouter
 
   links:
     - endpoints: ["r1:eth1", "r2:eth1"]  # R1 ge-0/0/0 — R2 ge-0/0/0  10.0.12.0/30  OSPF underlay
