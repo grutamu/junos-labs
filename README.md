@@ -53,6 +53,33 @@ sudo containerlab inspect
 sudo containerlab destroy -t lab01-ospf-single-area.clab.yml
 ```
 
+## Saving and Resuming Progress
+
+By default, ContainerLab containers are ephemeral — any configuration applied during a lab session is lost on `destroy`. To preserve your work, save configs before tearing down:
+
+```bash
+# Save running configs from all nodes
+sudo containerlab save -t lab01-ospf-single-area.clab.yml
+
+# Then tear down
+sudo containerlab destroy -t lab01-ospf-single-area.clab.yml
+```
+
+Saved configs are written to `clab-<lab-name>/<node>/config/` alongside the topology file and persist on disk after the lab is destroyed. To reload them on the next deploy, add a `startup-config` reference to each node in the topology file:
+
+```yaml
+nodes:
+  r1:
+    kind: juniper_vjunosrouter
+    startup-config: clab-lab01-ospf-single-area/r1/config/junos.conf
+  r2:
+    kind: juniper_vjunosrouter
+    startup-config: clab-lab01-ospf-single-area/r2/config/junos.conf
+  # ...
+```
+
+> **Note:** `startup-config` support for vrnetlab-wrapped images can be inconsistent. Test a full save/destroy/redeploy cycle before relying on it. If configs don't apply automatically, the saved files can be pasted in manually after boot.
+
 ---
 
 ## Quick Reference
