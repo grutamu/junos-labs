@@ -4,68 +4,86 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repo Is
 
-A collection of [ContainerLab](https://containerlab.dev/) topology files for hands-on Junos networking labs. Each `.clab.yml` file defines a virtual network using `vrnetlab`-wrapped Junos images. Labs are standalone and self-documented via header comments — all addressing, area assignments, BGP ASNs, and protocol roles are defined in the comments at the top of each file.
+A collection of [ContainerLab](https://containerlab.dev/) topology files for hands-on Junos JNCIS-ENT lab practice. Two `.clab.yml` files cover all exam topics. Base configurations (interfaces, loopbacks, hostnames) are pre-applied via startup-config so protocol configuration can start immediately.
 
 ## Lab Management Commands
 
 ```bash
-# Deploy a lab
-sudo containerlab deploy -t lab01-ospf-single-area.clab.yml
+# Deploy
+sudo containerlab deploy -t routing-lab.clab.yml
+sudo containerlab deploy -t layer2-lab.clab.yml
 
-# Destroy a lab (removes containers and links)
-sudo containerlab destroy -t lab01-ospf-single-area.clab.yml
+# Destroy
+sudo containerlab destroy -t routing-lab.clab.yml
+sudo containerlab destroy -t layer2-lab.clab.yml
 
-# List running labs and node status
+# List running labs
 sudo containerlab inspect
 
 # SSH into a node (pattern: clab-<lab-name>-<node>)
-ssh admin@clab-lab01-ospf-single-area-r1
+ssh admin@clab-routing-lab-r1
+ssh admin@clab-layer2-lab-sw1
 ```
 
 ## Architecture
 
-### Topology Pattern
+### Topology Files
 
-Labs 1–7 and lab 9 share the same physical 4-router **square topology** using `juniper_vjunosrouter`. Only the Junos configuration changes between labs — the `.clab.yml` wiring is identical:
+| File | Nodes | Covers |
+|------|-------|--------|
+| `routing-lab.clab.yml` | r1–r4 (vJunos-router) | OSPF, IS-IS, BGP, Policy, CoS |
+| `layer2-lab.clab.yml` | sw1–sw4 (vJunos-switch) | VLANs, STP, LAG, IRB, VRRP |
+
+### Startup Configs
 
 ```
-R1 --- R2
-|       |
-R3 --- R4
+configs/
+  routing/   r1.conf – r4.conf   interfaces + loopbacks + router-id (no protocols)
+  layer2/    sw1.conf – sw4.conf  hostname + ssh only
 ```
 
-Lab 8 uses `juniper_vjunosswitch` (QFX-based) for Layer 2 switching exercises.
+Configs are in JunOS curly-brace format (same as `show configuration` output). If startup-config doesn't apply automatically (vrnetlab inconsistency), paste via `configure; load merge terminal`.
 
 ### Interface Mapping
 
 ContainerLab `eth` interfaces map to Junos `ge-0/0/x` interfaces:
 
-| ContainerLab | Junos      |
-|-------------|------------|
-| eth1        | ge-0/0/0   |
-| eth2        | ge-0/0/1   |
-| eth3        | ge-0/0/2   |
-| eth4        | ge-0/0/3   |
+| ContainerLab | Junos |
+|---|---|
+| eth1 | ge-0/0/0 |
+| eth2 | ge-0/0/1 |
+| eth3 | ge-0/0/2 |
+| eth4 | ge-0/0/3 |
 
-### Standard Addressing (Labs 1–7, 9)
+### Standard Addressing (routing lab)
 
 - Loopbacks: `10.0.0.x/32` where x = router number
-- P2P links: `10.0.XY.0/30` where XY = the two router numbers (e.g., R1-R2 = `10.0.12.0/30`)
+- P2P links: `10.0.XY.0/30` where XY = the two router numbers (e.g., r1-r2 = `10.0.12.0/30`)
 
-### Lab Progression
+### Routing Lab Topology
 
-Labs build on each other:
-- **Lab 1**: OSPF single area — baseline config reused in later labs
-- **Lab 2**: OSPF multi-area (same wiring, different area assignments)
-- **Lab 3**: OSPF advanced (virtual links, redistribution)
-- **Lab 4**: IS-IS (replace OSPF; same physical topology)
-- **Lab 5**: BGP foundation — uses Lab 1 OSPF as underlay
-- **Lab 6**: BGP advanced — route reflection, communities, AS-path filters, BFD
-- **Lab 7**: Routing policy + firewall filters — layers on top of Labs 5/6
-- **Lab 8**: Layer 2 switching — separate switch topology
-- **Lab 9**: Class of Service — primary CoS link is R1–R2 (ge-0/0/0)
+```
+r1 --- r2
+|       |
+r3 --- r4
+```
 
-### Docker Image
+r1: ge-0/0/0→r2, ge-0/0/1→r3  
+r2: ge-0/0/0→r1, ge-0/0/1→r4  
+r3: ge-0/0/0→r1, ge-0/0/1→r4  
+r4: ge-0/0/0→r2, ge-0/0/1→r3
+
+### Layer 2 Lab Topology
+
+```
+sw1 (root)
+├── ae0 (LAG: eth1+eth2) → sw2
+├── eth3 (ge-0/0/2) → sw3
+└── eth4 (ge-0/0/3) → sw4 (VRRP backup)
+sw2 eth3 (ge-0/0/2) → sw4 (redundant uplink)
+```
+
+### Docker Images
 
 All routers: `vrnetlab/juniper_vjunos-router:25.4R1.12`  
 All switches: `vrnetlab/juniper_vjunos-switch:25.4R1.12`

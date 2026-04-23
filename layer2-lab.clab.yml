@@ -1,0 +1,55 @@
+# Layer 2 Switching Lab — JNCIS-ENT
+# 4x vJunos-switch (QFX-based).
+# Hostnames and SSH pre-configured via startup-config.
+# All switching config (VLANs, STP, LAG, IRB, VRRP) must be done manually.
+#
+# Interface mapping: eth1=ge-0/0/0, eth2=ge-0/0/1, eth3=ge-0/0/2, eth4=ge-0/0/3
+#
+# Physical topology:
+#
+#         sw1 (Root Bridge, priority 4096)
+#        /   \            \
+#  [ae0/LAG]  [ge-0/0/2]  [ge-0/0/3]
+#      /           \            \
+#    sw2           sw3           sw4 (VRRP backup)
+#
+# Links:
+#   sw1 ge-0/0/0 (eth1) — sw2 ge-0/0/0 (eth1) : LAG member 1 (ae0)
+#   sw1 ge-0/0/1 (eth2) — sw2 ge-0/0/1 (eth2) : LAG member 2 (ae0)
+#   sw1 ge-0/0/2 (eth3) — sw3 ge-0/0/0 (eth1) : Trunk, VLANs 10/20/30
+#   sw1 ge-0/0/3 (eth4) — sw4 ge-0/0/0 (eth1) : Trunk to sw4 (VRRP uplink)
+#   sw2 ge-0/0/2 (eth3) — sw4 ge-0/0/1 (eth2) : Trunk to sw4 (redundant uplink)
+#
+# VLANs: 10, 20, 30
+# IRB: irb.10 = 192.168.10.1/24 (sw1 master), irb.20 = 192.168.20.1/24
+# VRRP group 10: VIP 192.168.10.254, sw1 priority 200, sw4 priority 100
+#
+# Lab guide: See JNCIS-ENT/labs/Layer2-Lab.md
+
+name: layer2-lab
+
+topology:
+  kinds:
+    juniper_vjunosswitch:
+      image: vrnetlab/juniper_vjunos-switch:25.4R1.12
+
+  nodes:
+    sw1:
+      kind: juniper_vjunosswitch
+      startup-config: configs/layer2/sw1.conf
+    sw2:
+      kind: juniper_vjunosswitch
+      startup-config: configs/layer2/sw2.conf
+    sw3:
+      kind: juniper_vjunosswitch
+      startup-config: configs/layer2/sw3.conf
+    sw4:
+      kind: juniper_vjunosswitch
+      startup-config: configs/layer2/sw4.conf
+
+  links:
+    - endpoints: ["sw1:eth1", "sw2:eth1"]  # sw1 ge-0/0/0 — sw2 ge-0/0/0  LAG (ae0) member 1
+    - endpoints: ["sw1:eth2", "sw2:eth2"]  # sw1 ge-0/0/1 — sw2 ge-0/0/1  LAG (ae0) member 2
+    - endpoints: ["sw1:eth3", "sw3:eth1"]  # sw1 ge-0/0/2 — sw3 ge-0/0/0  Trunk VLANs 10/20/30
+    - endpoints: ["sw1:eth4", "sw4:eth1"]  # sw1 ge-0/0/3 — sw4 ge-0/0/0  Trunk to sw4 (VRRP)
+    - endpoints: ["sw2:eth3", "sw4:eth2"]  # sw2 ge-0/0/2 — sw4 ge-0/0/1  Trunk to sw4 (redundant uplink)

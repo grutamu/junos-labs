@@ -1,0 +1,47 @@
+# Routing Lab — JNCIS-ENT
+# 4x vJunos-router in a square topology.
+# Interfaces and loopbacks are pre-configured via startup-config.
+# All routing protocols (OSPF, IS-IS, BGP) must be configured manually.
+#
+# Interface mapping: eth1=ge-0/0/0, eth2=ge-0/0/1
+#
+# Addressing:
+#   r1 lo0: 10.0.0.1/32   r2 lo0: 10.0.0.2/32
+#   r3 lo0: 10.0.0.3/32   r4 lo0: 10.0.0.4/32
+#
+#   r1 ge-0/0/0 — r2 ge-0/0/0  : 10.0.12.1/30 — 10.0.12.2/30
+#   r1 ge-0/0/1 — r3 ge-0/0/0  : 10.0.13.1/30 — 10.0.13.2/30
+#   r2 ge-0/0/1 — r4 ge-0/0/0  : 10.0.24.1/30 — 10.0.24.2/30
+#   r3 ge-0/0/1 — r4 ge-0/0/1  : 10.0.34.1/30 — 10.0.34.2/30
+#
+# Covers: OSPF (single-area, multi-area, advanced), IS-IS, BGP, Routing Policy,
+#          Firewall Filters, Class of Service
+#
+# Lab guide: See JNCIS-ENT/labs/Routing-Lab.md
+
+name: routing-lab
+
+topology:
+  kinds:
+    juniper_vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r1:
+      kind: juniper_vjunosrouter
+      startup-config: configs/routing/r1.conf
+    r2:
+      kind: juniper_vjunosrouter
+      startup-config: configs/routing/r2.conf
+    r3:
+      kind: juniper_vjunosrouter
+      startup-config: configs/routing/r3.conf
+    r4:
+      kind: juniper_vjunosrouter
+      startup-config: configs/routing/r4.conf
+
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"]  # r1 ge-0/0/0 — r2 ge-0/0/0  10.0.12.0/30
+    - endpoints: ["r1:eth2", "r3:eth1"]  # r1 ge-0/0/1 — r3 ge-0/0/0  10.0.13.0/30
+    - endpoints: ["r2:eth2", "r4:eth1"]  # r2 ge-0/0/1 — r4 ge-0/0/0  10.0.24.0/30
+    - endpoints: ["r3:eth2", "r4:eth2"]  # r3 ge-0/0/1 — r4 ge-0/0/1  10.0.34.0/30
