@@ -1,0 +1,33 @@
+# Troubleshooting Lab — IS-IS
+# 4x vJunos-router. Base addressing is pre-configured.
+# IS-IS has been deployed but adjacencies and route visibility are broken.
+# Find and fix all faults.
+#
+# Lab guide: See JNCIS-ENT/labs/Troubleshoot-ISIS.md
+
+name: troubleshoot-isis
+
+topology:
+  kinds:
+    juniper_vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r1:
+      kind: juniper_vjunosrouter
+      startup-config: configs/troubleshoot/isis/r1.conf
+    r2:
+      kind: juniper_vjunosrouter
+      startup-config: configs/troubleshoot/isis/r2.conf
+    r3:
+      kind: juniper_vjunosrouter
+      startup-config: configs/troubleshoot/isis/r3.conf
+    r4:
+      kind: juniper_vjunosrouter
+      startup-config: configs/troubleshoot/isis/r4.conf
+
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"]
+    - endpoints: ["r1:eth2", "r3:eth1"]
+    - endpoints: ["r2:eth2", "r4:eth1"]
+    - endpoints: ["r3:eth2", "r4:eth2"]

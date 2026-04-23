@@ -1,0 +1,33 @@
+# Troubleshooting Lab — BGP
+# 4x vJunos-router. OSPF underlay is pre-configured and working.
+# BGP has been deployed but sessions and route propagation are broken.
+# Find and fix all faults.
+#
+# Lab guide: See JNCIS-ENT/labs/Troubleshoot-BGP.md
+
+name: troubleshoot-bgp
+
+topology:
+  kinds:
+    juniper_vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r1:
+      kind: juniper_vjunosrouter
+      startup-config: configs/troubleshoot/bgp/r1.conf
+    r2:
+      kind: juniper_vjunosrouter
+      startup-config: configs/troubleshoot/bgp/r2.conf
+    r3:
+      kind: juniper_vjunosrouter
+      startup-config: configs/troubleshoot/bgp/r3.conf
+    r4:
+      kind: juniper_vjunosrouter
+      startup-config: configs/troubleshoot/bgp/r4.conf
+
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"]
+    - endpoints: ["r1:eth2", "r3:eth1"]
+    - endpoints: ["r2:eth2", "r4:eth1"]
+    - endpoints: ["r3:eth2", "r4:eth2"]

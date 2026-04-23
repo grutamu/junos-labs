@@ -1,0 +1,33 @@
+# Troubleshooting Lab — Layer 2 Switching
+# 4x vJunos-switch. Switching config has been deployed but is not working as intended.
+# Find and fix all faults.
+#
+# Lab guide: See JNCIS-ENT/labs/Troubleshoot-Layer2.md
+
+name: troubleshoot-l2
+
+topology:
+  kinds:
+    juniper_vjunosswitch:
+      image: vrnetlab/juniper_vjunos-switch:25.4R1.12
+
+  nodes:
+    sw1:
+      kind: juniper_vjunosswitch
+      startup-config: configs/troubleshoot/l2/sw1.conf
+    sw2:
+      kind: juniper_vjunosswitch
+      startup-config: configs/troubleshoot/l2/sw2.conf
+    sw3:
+      kind: juniper_vjunosswitch
+      startup-config: configs/troubleshoot/l2/sw3.conf
+    sw4:
+      kind: juniper_vjunosswitch
+      startup-config: configs/troubleshoot/l2/sw4.conf
+
+  links:
+    - endpoints: ["sw1:eth1", "sw2:eth1"]
+    - endpoints: ["sw1:eth2", "sw2:eth2"]
+    - endpoints: ["sw1:eth3", "sw3:eth1"]
+    - endpoints: ["sw1:eth4", "sw4:eth1"]
+    - endpoints: ["sw2:eth3", "sw4:eth2"]

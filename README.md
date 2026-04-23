@@ -8,10 +8,29 @@ ContainerLab topologies for hands-on Junos networking practice. Two topology fil
 
 ## Labs
 
-| Topology | Topics Covered | File |
-|----------|---------------|------|
-| Routing Lab | OSPF, IS-IS, BGP, Routing Policy, Firewall Filters, CoS | `routing-lab.clab.yml` |
-| Layer 2 Lab | VLANs, STP, LACP, IRB, VRRP | `layer2-lab.clab.yml` |
+**Guided** — base interfaces pre-configured, protocols done manually:
+
+| File | Topics |
+|------|--------|
+| `routing-lab.clab.yml` | OSPF, IS-IS, BGP, Routing Policy, Firewall Filters, CoS |
+| `layer2-lab.clab.yml` | VLANs, STP, LACP, IRB, VRRP |
+
+**Troubleshooting** — broken configs pre-loaded, find and fix all faults:
+
+| File | Faults In |
+|------|-----------|
+| `troubleshoot-ospf.clab.yml` | OSPF adjacency and loopback config |
+| `troubleshoot-isis.clab.yml` | IS-IS adjacency and route leaking |
+| `troubleshoot-bgp.clab.yml` | BGP sessions and route propagation |
+| `troubleshoot-l2.clab.yml` | LACP, STP, VLAN, IRB |
+
+**Challenge** — requirements only, no commands (reuse guided topology files):
+
+| Guide | Topics |
+|-------|--------|
+| `Challenge-Routing.md` | OSPF multi-area, iBGP RR, eBGP, communities, firewall filter |
+| `Challenge-Layer2.md` | Full campus: LACP, RSTP, IRB, VRRP |
+| `Challenge-CoS.md` | CoS pipeline design from requirements |
 
 Lab guides live in the Obsidian vault at `JNCIS-ENT/labs/`.
 
