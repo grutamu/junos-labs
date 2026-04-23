@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repo Is
 
-A collection of [ContainerLab](https://containerlab.dev/) topology files for hands-on Junos JNCIS-ENT lab practice. Two `.clab.yml` files cover all exam topics. Base configurations (interfaces, loopbacks, hostnames) are pre-applied via startup-config so protocol configuration can start immediately.
+Hands-on Junos JNCIS-ENT lab suite. Contains ContainerLab topology files, base startup configs, and all lab guides (Markdown) in one place. Three lab types:
+
+- **Guided** (`Routing-Lab.md`, `Layer2-Lab.md`) — base interfaces pre-configured, build protocols from scratch
+- **Troubleshooting** (`Troubleshoot-*.md`) — broken configs pre-loaded, find and fix all faults
+- **Challenge** (`Challenge-*.md`) — requirements and success criteria only, no commands
 
 ## Lab Management Commands
 

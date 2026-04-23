@@ -1,119 +1,66 @@
-# junos-labs
+# JNCIS-ENT Labs
 
-ContainerLab topologies for hands-on Junos networking practice. Two topology files cover all JNCIS-ENT exam topics. Base configs (interfaces, loopbacks, hostnames) are pre-loaded via startup-config so you can focus on the protocol at hand.
-
-**Prerequisites:** [ContainerLab](https://containerlab.dev/) and the `vrnetlab/juniper_vjunos-router:25.4R1.12` / `vrnetlab/juniper_vjunos-switch:25.4R1.12` images available to Docker.
+Three lab types: guided labs for learning, troubleshooting labs to test diagnostic skills, and challenge labs to test design and implementation from requirements alone.
 
 ---
 
-## Labs
+## Guided Labs
 
-**Guided** — base interfaces pre-configured, protocols done manually:
+Build knowledge progressively — interfaces pre-configured, protocols are up to you.
 
-| File | Topics |
-|------|--------|
-| `routing-lab.clab.yml` | OSPF, IS-IS, BGP, Routing Policy, Firewall Filters, CoS |
-| `layer2-lab.clab.yml` | VLANs, STP, LACP, IRB, VRRP |
-
-**Troubleshooting** — broken configs pre-loaded, find and fix all faults:
-
-| File | Faults In |
-|------|-----------|
-| `troubleshoot-ospf.clab.yml` | OSPF adjacency and loopback config |
-| `troubleshoot-isis.clab.yml` | IS-IS adjacency and route leaking |
-| `troubleshoot-bgp.clab.yml` | BGP sessions and route propagation |
-| `troubleshoot-l2.clab.yml` | LACP, STP, VLAN, IRB |
-
-**Challenge** — requirements only, no commands (reuse guided topology files):
-
-| Guide | Topics |
-|-------|--------|
-| `Challenge-Routing.md` | OSPF multi-area, iBGP RR, eBGP, communities, firewall filter |
-| `Challenge-Layer2.md` | Full campus: LACP, RSTP, IRB, VRRP |
-| `Challenge-CoS.md` | CoS pipeline design from requirements |
-
-Lab guides live in the Obsidian vault at `JNCIS-ENT/labs/`.
+| Guide | Topics | Topology |
+|-------|--------|----------|
+| [Routing-Lab.md](Routing-Lab.md) | OSPF → IS-IS → BGP → Policy → CoS | `routing-lab.clab.yml` |
+| [Layer2-Lab.md](Layer2-Lab.md) | VLANs → LACP → RSTP → IRB → VRRP | `layer2-lab.clab.yml` |
 
 ---
 
-## Spinning Up a Lab
+## Troubleshooting Labs
+
+Broken configs are pre-loaded. Find and fix all faults — no hints given.
+
+| Lab | Faults In | Topology |
+|-----|-----------|----------|
+| [Troubleshoot-OSPF.md](Troubleshoot-OSPF.md) | OSPF adjacency and loopback config | `troubleshoot-ospf.clab.yml` |
+| [Troubleshoot-ISIS.md](Troubleshoot-ISIS.md) | IS-IS adjacency and route leaking | `troubleshoot-isis.clab.yml` |
+| [Troubleshoot-BGP.md](Troubleshoot-BGP.md) | BGP sessions and route propagation | `troubleshoot-bgp.clab.yml` |
+| [Troubleshoot-Layer2.md](Troubleshoot-Layer2.md) | LACP, STP, VLAN, IRB | `troubleshoot-l2.clab.yml` |
+
+---
+
+## Challenge Labs
+
+Requirements only — no commands, no step-by-step guidance.
+
+| Lab | Topics | Topology |
+|-----|--------|----------|
+| [Challenge-Routing.md](Challenge-Routing.md) | OSPF multi-area, iBGP RR, eBGP, communities, firewall filter | `routing-lab.clab.yml` |
+| [Challenge-Layer2.md](Challenge-Layer2.md) | Full campus: LACP, RSTP, IRB, VRRP | `layer2-lab.clab.yml` |
+| [Challenge-CoS.md](Challenge-CoS.md) | CoS pipeline design from requirements | `routing-lab.clab.yml` |
+
+---
+
+## Quick Start
 
 ```bash
-# Routing lab (OSPF, IS-IS, BGP, Policy, CoS)
+cd ~/development/github/junos-labs
+
+# Guided
 sudo containerlab deploy -t routing-lab.clab.yml
-
-# Layer 2 lab (VLANs, STP, LAG, IRB, VRRP)
 sudo containerlab deploy -t layer2-lab.clab.yml
+
+# Troubleshooting
+sudo containerlab deploy -t troubleshoot-ospf.clab.yml
+sudo containerlab deploy -t troubleshoot-isis.clab.yml
+sudo containerlab deploy -t troubleshoot-bgp.clab.yml
+sudo containerlab deploy -t troubleshoot-l2.clab.yml
 ```
 
-SSH into nodes using the pattern `clab-<lab-name>-<node>`:
-
-```bash
-# Routing lab nodes
-ssh admin@clab-routing-lab-r1
-ssh admin@clab-routing-lab-r2
-ssh admin@clab-routing-lab-r3
-ssh admin@clab-routing-lab-r4
-
-# Layer 2 lab nodes
-ssh admin@clab-layer2-lab-sw1
-ssh admin@clab-layer2-lab-sw2
-ssh admin@clab-layer2-lab-sw3
-ssh admin@clab-layer2-lab-sw4
-```
-
-Check running nodes:
-
-```bash
-sudo containerlab inspect
-```
+SSH pattern: `ssh admin@clab-<lab-name>-<node>` (e.g. `clab-troubleshoot-ospf-r1`)
 
 ---
 
-## Tearing Down
-
-```bash
-sudo containerlab destroy -t routing-lab.clab.yml
-sudo containerlab destroy -t layer2-lab.clab.yml
-```
-
----
-
-## Startup Configs
-
-Base configs are in `configs/` and are applied at deploy time:
-
-```
-configs/
-  routing/   r1.conf – r4.conf   interfaces + loopbacks + router-id
-  layer2/    sw1.conf – sw4.conf  hostname + ssh only
-```
-
-> **Note:** `startup-config` support for vrnetlab-wrapped images can be inconsistent. If the config doesn't apply automatically after boot, paste the contents of the relevant `.conf` file into the router CLI manually:
-> ```
-> configure
-> load merge terminal   # paste config, then Ctrl-D
-> commit
-> ```
-
----
-
-## Saving and Resuming Progress
-
-ContainerLab containers are ephemeral — config is lost on `destroy`. Save before tearing down:
-
-```bash
-sudo containerlab save -t routing-lab.clab.yml
-sudo containerlab destroy -t routing-lab.clab.yml
-```
-
-Saved configs land in `clab-routing-lab/<node>/config/junos.conf`. To reload on next deploy, update the `startup-config` paths in the topology file to point at the saved files.
-
----
-
-## Quick Reference
-
-**Interface mapping** (all labs):
+## Interface Mapping
 
 | ContainerLab | Junos |
 |---|---|
@@ -122,6 +69,15 @@ Saved configs land in `clab-routing-lab/<node>/config/junos.conf`. To reload on 
 | eth3 | ge-0/0/2 |
 | eth4 | ge-0/0/3 |
 
-**Standard addressing** (routing lab):
-- Loopbacks: `10.0.0.<router-num>/32`
-- P2P links: `10.0.<R><R>.0/30` (e.g. r1↔r2 = `10.0.12.0/30`)
+---
+
+## Junos CLI Reminders
+
+```
+configure
+show | compare
+commit check
+commit
+rollback 1 ; commit
+run show ...
+```
