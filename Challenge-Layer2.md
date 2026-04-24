@@ -37,6 +37,23 @@ Define the following VLANs on all switches before assigning them to any interfac
 
 ### Switching Topology
 
+```mermaid
+graph TD
+    sw1["sw1\n(Core / Root Bridge / VRRP Master)"]
+    sw2["sw2\n(Secondary Root)"]
+    sw3["sw3"]
+    sw4["sw4\n(VRRP Backup)"]
+    ep2["ge-0/0/3\nAccess VLAN 20\n(simulated user)"]
+    ep3["ge-0/0/3\nAccess VLAN 30\n(simulated voice)"]
+
+    sw1 -- "ae0 LAG (eth1+eth2)\nTrunk — all VLANs" --- sw2
+    sw1 -- "ge-0/0/2 ↔ ge-0/0/0\nTrunk — all VLANs" --- sw3
+    sw1 -- "ge-0/0/3 ↔ ge-0/0/0\nTrunk — VRRP" --- sw4
+    sw2 -- "ge-0/0/2 ↔ ge-0/0/1\nTrunk — redundant uplink" --- sw4
+    sw2 --- ep2
+    sw3 --- ep3
+```
+
 - sw1 is the **core/distribution switch** — all other switches uplink to sw1
 - sw1–sw2: **LACP link aggregation** (ae0) using both eth1 and eth2 — LACP must be active on at least one side; ae0 must carry all three VLANs as a trunk
 - sw1–sw3: trunk carrying all three VLANs (single link)

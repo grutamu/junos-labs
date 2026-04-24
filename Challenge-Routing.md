@@ -21,6 +21,21 @@ You are the network engineer for a small enterprise. You need to build out the r
 
 ## Requirements
 
+### Topology
+
+```mermaid
+graph LR
+    r1["r1\nAS 65001\nOSPF ABR / BGP RR\nlo0: 10.0.0.1/32"]
+    r2["r2\nAS 65001\nBGP RR client\nlo0: 10.0.0.2/32"]
+    r3["r3\nAS 65002\nBranch\nlo0: 10.0.0.3/32"]
+    r4["r4\nAS 65003\nPartner\nlo0: 10.0.0.4/32"]
+
+    r1 -- "iBGP / OSPF Area 0\n10.0.12.0/30" --- r2
+    r1 -- "eBGP / OSPF Area 1\n10.0.13.0/30" --- r3
+    r2 -- "eBGP / OSPF Area 2\n10.0.24.0/30" --- r4
+    r3 -- "10.0.34.0/30\n(no OSPF)" --- r4
+```
+
 ### Topology Roles
 
 | Router | Role |

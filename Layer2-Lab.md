@@ -21,16 +21,21 @@ ssh admin@clab-layer2-lab-sw4
 
 ### Topology
 
-```
-            sw1 (Root Bridge)
-           /         |         \
-    [ae0/LAG]   [ge-0/0/2]  [ge-0/0/3]
-         /            |            \
-       sw2           sw3           sw4 (VRRP backup)
-        |              |
-  [ge-0/0/3]     [ge-0/0/3]
-   Access            Access
-   VLAN 10           VLAN 30
+```mermaid
+graph TD
+    sw1["sw1\n(Root Bridge / VRRP Master)"]
+    sw2["sw2\n(Secondary Root)"]
+    sw3["sw3"]
+    sw4["sw4\n(VRRP Backup)"]
+    ep2["ge-0/0/3\nAccess VLAN 20"]
+    ep3["ge-0/0/3\nAccess VLAN 30"]
+
+    sw1 -- "ae0 LAG\nge-0/0/0+ge-0/0/1 ↔ ae0\nTrunk (all VLANs)" --- sw2
+    sw1 -- "ge-0/0/2 ↔ ge-0/0/0\nTrunk (all VLANs)" --- sw3
+    sw1 -- "ge-0/0/3 ↔ ge-0/0/0\nTrunk (VRRP)" --- sw4
+    sw2 -- "ge-0/0/2 ↔ ge-0/0/1\nTrunk (redundant uplink)" --- sw4
+    sw2 --- ep2
+    sw3 --- ep3
 ```
 
 | Link | sw1 Interface | Other Switch | Type |
