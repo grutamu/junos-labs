@@ -25,6 +25,9 @@ topology:
   kinds:
     juniper_vjunosrouter:
       image: vrnetlab/juniper_vjunos-router:25.4R1.12
+      env:
+          QEMU_MEMORY: 4096                            
+          QEMU_SMP: 2
 
   nodes:
     r1:

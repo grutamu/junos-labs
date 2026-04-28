@@ -32,31 +32,22 @@ topology:
   kinds:
     juniper_vjunosswitch:
       image: vrnetlab/juniper_vjunos-switch:25.4R1.12
+      env:
+          QEMU_MEMORY: 4096                            
+          QEMU_SMP: 2
 
   nodes:
     sw1:
       kind: juniper_vjunosswitch
-      env:
-          QEMU_MEMORY: 4096                            
-          QEMU_SMP: 2
       startup-config: configs/layer2/sw1.conf
     sw2:
       kind: juniper_vjunosswitch
-      env:
-          QEMU_MEMORY: 4096                            
-          QEMU_SMP: 2
       startup-config: configs/layer2/sw2.conf
     sw3:
       kind: juniper_vjunosswitch
-      env:
-          QEMU_MEMORY: 4096                            
-          QEMU_SMP: 2
       startup-config: configs/layer2/sw3.conf
     sw4:
       kind: juniper_vjunosswitch
-      env:
-          QEMU_MEMORY: 4096                             
-          QEMU_SMP: 2
       startup-config: configs/layer2/sw4.conf
 
   links:
