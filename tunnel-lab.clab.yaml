@@ -1,0 +1,58 @@
+# Tunnel Lab — JNCIS-ENT
+# Two sites connected via a simulated internet (FRR node).
+# Site 1: r1 — r2 (WAN-facing)
+# Site 2: r3 (WAN-facing) — r4
+# Internet: FRR linux container with two WAN subnets
+#
+# Interface mapping: eth1=ge-0/0/0, eth2=ge-0/0/1
+#
+# Addressing:
+#   Site 1 internal  r1 ge-0/0/0 — r2 ge-0/0/0 : 10.0.12.1/30 — 10.0.12.2/30
+#   WAN Site1        r2 ge-0/0/1 — internet eth1 : 192.0.2.1/30 — 192.0.2.2/30
+#   WAN Site2        internet eth2 — r3 ge-0/0/1 : 198.51.100.1/30 — 198.51.100.2/30
+#   Site 2 internal  r3 ge-0/0/0 — r4 ge-0/0/0 : 10.0.34.1/30 — 10.0.34.2/30
+#
+#   Loopbacks: 10.0.0.x/32  (x = router number)
+#
+# Topology:
+#   r1 --- r2 --- [INTERNET] --- r3 --- r4
+#
+# Covers: GRE tunnels, IPsec, tunnel routing
+
+name: tunnel-lab
+
+topology:
+  kinds:
+    juniper_vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r1:
+      kind: juniper_vjunosrouter
+      startup-config: configs/tunnel/r1.conf
+
+    r2:
+      kind: juniper_vjunosrouter
+      startup-config: configs/tunnel/r2.conf
+
+    r3:
+      kind: juniper_vjunosrouter
+      startup-config: configs/tunnel/r3.conf
+
+    r4:
+      kind: juniper_vjunosrouter
+      startup-config: configs/tunnel/r4.conf
+
+    internet:
+      kind: linux
+      image: frrouting/frr:latest
+      exec:
+        - ip addr add 192.0.2.2/30 dev eth1      # WAN toward r2
+        - ip addr add 198.51.100.1/30 dev eth2   # WAN toward r3
+        - sysctl -w net.ipv4.ip_forward=1
+
+  links:
+    - endpoints: ["r1:eth1", "r2:eth1"]          # r1 ge-0/0/0 — r2 ge-0/0/0  10.0.12.0/30
+    - endpoints: ["r2:eth2", "internet:eth1"]    # r2 ge-0/0/1 — internet      192.0.2.0/30
+    - endpoints: ["internet:eth2", "r3:eth2"]    # internet     — r3 ge-0/0/1  198.51.100.0/30
+    - endpoints: ["r3:eth1", "r4:eth1"]          # r3 ge-0/0/0 — r4 ge-0/0/0  10.0.34.0/30
