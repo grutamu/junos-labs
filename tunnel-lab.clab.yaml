@@ -50,6 +50,9 @@ topology:
         - ip addr add 192.0.2.2/30 dev eth1      # WAN toward r2
         - ip addr add 198.51.100.1/30 dev eth2   # WAN toward r3
         - sysctl -w net.ipv4.ip_forward=1
+        - ip route add blackhole 10.0.0.0/8      # discard RFC-1918
+        - ip route add blackhole 172.16.0.0/12   # discard RFC-1918
+        - ip route add blackhole 192.168.0.0/16  # discard RFC-1918
 
   links:
     - endpoints: ["r1:eth1", "r2:eth1"]          # r1 ge-0/0/0 — r2 ge-0/0/0  10.0.12.0/30
