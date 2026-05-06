@@ -1,0 +1,47 @@
+{
+  "freeTextAnnotations": [],
+  "freeShapeAnnotations": [],
+  "trafficRateAnnotations": [],
+  "groupStyleAnnotations": [],
+  "networkNodeAnnotations": [],
+  "nodeAnnotations": [
+    {
+      "id": "r1",
+      "position": {
+        "x": 280,
+        "y": 320
+      }
+    },
+    {
+      "id": "r2",
+      "position": {
+        "x": 420,
+        "y": 320
+      }
+    },
+    {
+      "id": "r3",
+      "position": {
+        "x": 660,
+        "y": 320
+      }
+    },
+    {
+      "id": "r4",
+      "position": {
+        "x": 780,
+        "y": 320
+      }
+    },
+    {
+      "id": "internet",
+      "position": {
+        "x": 540,
+        "y": 320
+      }
+    }
+  ],
+  "edgeAnnotations": [],
+  "aliasEndpointAnnotations": [],
+  "viewerSettings": {}
+}
