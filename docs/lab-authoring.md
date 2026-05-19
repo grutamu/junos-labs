@@ -328,7 +328,7 @@ lab_configs:
     remote_dir: /opt/labs/my-multinode-lab
 ```
 
-Run `ansible-playbook ansible/labs.yml -e "lab=my-new-lab action=deploy"` to test the registration.
+Run `ansible-playbook ansible/labs.yml -e "lab=my-new-lab op=deploy"` to test the registration.
 
 ---
 

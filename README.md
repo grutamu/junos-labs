@@ -10,8 +10,8 @@ Build knowledge progressively — interfaces pre-configured, protocols are up to
 
 | Guide | Topics | Topology |
 |-------|--------|----------|
-| [Routing-Lab.md](Routing-Lab.md) | OSPF → IS-IS → BGP → Policy → CoS | `routing-lab.clab.yml` |
-| [Layer2-Lab.md](Layer2-Lab.md) | VLANs → LACP → RSTP → IRB → VRRP | `layer2-lab.clab.yml` |
+| [Routing-Lab.md](singlenode/Lab%20Docs/Routing-Lab.md) | OSPF → IS-IS → BGP → Policy → CoS | `singlenode/routing-lab.clab.yml` |
+| [Layer2-Lab.md](singlenode/Lab%20Docs/Layer2-Lab.md) | VLANs → LACP → RSTP → IRB → VRRP | `singlenode/layer2-lab.clab.yml` |
 
 ---
 
@@ -21,10 +21,10 @@ Broken configs are pre-loaded. Find and fix all faults — no hints given.
 
 | Lab | Faults In | Topology |
 |-----|-----------|----------|
-| [Troubleshoot-OSPF.md](Troubleshoot-OSPF.md) | OSPF adjacency and loopback config | `troubleshoot-ospf.clab.yml` |
-| [Troubleshoot-ISIS.md](Troubleshoot-ISIS.md) | IS-IS adjacency and route leaking | `troubleshoot-isis.clab.yml` |
-| [Troubleshoot-BGP.md](Troubleshoot-BGP.md) | BGP sessions and route propagation | `troubleshoot-bgp.clab.yml` |
-| [Troubleshoot-Layer2.md](Troubleshoot-Layer2.md) | LACP, STP, VLAN, IRB | `troubleshoot-l2.clab.yml` |
+| [Troubleshoot-OSPF.md](singlenode/Lab%20Docs/Troubleshoot-OSPF.md) | OSPF adjacency and loopback config | `singlenode/troubleshoot-ospf.clab.yml` |
+| [Troubleshoot-ISIS.md](singlenode/Lab%20Docs/Troubleshoot-ISIS.md) | IS-IS adjacency and route leaking | `singlenode/troubleshoot-isis.clab.yml` |
+| [Troubleshoot-BGP.md](singlenode/Lab%20Docs/Troubleshoot-BGP.md) | BGP sessions and route propagation | `singlenode/troubleshoot-bgp.clab.yml` |
+| [Troubleshoot-Layer2.md](singlenode/Lab%20Docs/Troubleshoot-Layer2.md) | LACP, STP, VLAN, IRB | `singlenode/troubleshoot-l2.clab.yml` |
 
 ---
 
@@ -34,9 +34,9 @@ Requirements only — no commands, no step-by-step guidance.
 
 | Lab | Topics | Topology |
 |-----|--------|----------|
-| [Challenge-Routing.md](Challenge-Routing.md) | OSPF multi-area, iBGP RR, eBGP, communities, firewall filter | `routing-lab.clab.yml` |
-| [Challenge-Layer2.md](Challenge-Layer2.md) | Full campus: LACP, RSTP, IRB, VRRP | `layer2-lab.clab.yml` |
-| [Challenge-CoS.md](Challenge-CoS.md) | CoS pipeline design from requirements | `routing-lab.clab.yml` |
+| [Challenge-Routing.md](singlenode/Lab%20Docs/Challenge-Routing.md) | OSPF multi-area, iBGP RR, eBGP, communities, firewall filter | `singlenode/routing-lab.clab.yml` |
+| [Challenge-Layer2.md](singlenode/Lab%20Docs/Challenge-Layer2.md) | Full campus: LACP, RSTP, IRB, VRRP | `singlenode/layer2-lab.clab.yml` |
+| [Challenge-CoS.md](singlenode/Lab%20Docs/Challenge-CoS.md) | CoS pipeline design from requirements | `singlenode/routing-lab.clab.yml` |
 
 ---
 
@@ -46,17 +46,25 @@ Requirements only — no commands, no step-by-step guidance.
 cd ~/development/github/junos-labs
 
 # Guided
-sudo containerlab deploy -t routing-lab.clab.yml
-sudo containerlab deploy -t layer2-lab.clab.yml
+sudo containerlab deploy -t singlenode/routing-lab.clab.yml
+sudo containerlab deploy -t singlenode/layer2-lab.clab.yml
 
 # Troubleshooting
-sudo containerlab deploy -t troubleshoot-ospf.clab.yml
-sudo containerlab deploy -t troubleshoot-isis.clab.yml
-sudo containerlab deploy -t troubleshoot-bgp.clab.yml
-sudo containerlab deploy -t troubleshoot-l2.clab.yml
+sudo containerlab deploy -t singlenode/troubleshoot-ospf.clab.yml
+sudo containerlab deploy -t singlenode/troubleshoot-isis.clab.yml
+sudo containerlab deploy -t singlenode/troubleshoot-bgp.clab.yml
+sudo containerlab deploy -t singlenode/troubleshoot-l2.clab.yml
 ```
 
 SSH pattern: `ssh admin@clab-<lab-name>-<node>` (e.g. `clab-troubleshoot-ospf-r1`)
+
+Or use Ansible to deploy to a remote host:
+
+```bash
+cd ansible
+ansible-playbook labs.yml -e "lab=routing-lab op=deploy"
+ansible-playbook labs.yml -e "lab=multinode-routing-lab op=deploy"
+```
 
 ---
 
@@ -79,6 +87,7 @@ A separate set of labs designed to run **split across two containerlab hosts** o
 |-----|--------|----------|
 | [Multinode-Routing-Lab.md](multinode/Multinode-Routing-Lab.md) | OSPF / IS-IS / BGP across hosts | `multinode/multinode-routing-lab/host{1,2}.clab.yml` |
 | [Multinode-Layer2-Lab.md](multinode/Multinode-Layer2-Lab.md) | VLAN trunks + RSTP + VRRP across hosts | `multinode/multinode-layer2-lab/host{1,2}.clab.yml` |
+| *(load test)* | 10-node dual-pentagon, OSPF + 45-session iBGP full mesh — host capacity stress test | `multinode/multinode-load-test/host{1,2}.clab.yml` |
 
 Bring hosts to a known-good state with the [Ansible playbook](ansible/README.md); see [multinode/README.md](multinode/README.md) for deploy mechanics and [multinode/vni-allocation.md](multinode/vni-allocation.md) for the canonical VNI map.
 

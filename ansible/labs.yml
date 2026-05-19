@@ -4,7 +4,7 @@
 # Usage:
 #   ansible-playbook labs.yml -e "lab=<name> op=<op>"
 #
-# Labs:    routing-lab  layer2-lab  multinode-routing-lab  multinode-layer2-lab
+# Labs:    routing-lab  layer2-lab  multinode-routing-lab  multinode-layer2-lab  multinode-load-test
 # Ops:     deploy  destroy  cleanup  save  inspect  restart
 
 - name: Manage containerlab lab deployments

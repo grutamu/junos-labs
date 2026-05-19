@@ -98,10 +98,20 @@ For full authoring conventions (resource limits, naming, YAML format, templates,
 
 Separate, additive lab track under `multinode/`. Each multi-node lab has **one topology file per host** (e.g. `multinode/multinode-routing-lab/host1.clab.yml` and `host2.clab.yml`), wired together via `type: vxlan-stitch` links sharing a VNI on both sides. Single-host labs live under `singlenode/` and continue to run standalone.
 
+| Lab | Nodes | Description |
+|-----|-------|-------------|
+| `multinode-routing-lab` | r1–r2 (host1), r3–r4 (host2) | OSPF, IS-IS, BGP across hosts |
+| `multinode-layer2-lab` | sw1–sw2 (host1), sw3–sw4 (host2) | VLANs, LAG, RSTP, VRRP across hosts |
+| `multinode-load-test` | r1–r5 (host1), r6–r10 (host2) | OSPF + BFD + iBGP full mesh — host capacity stress test |
+
 ```bash
-# Deploy each half on its host
+# Deploy each half on its host (manual)
 sudo containerlab deploy -t multinode/multinode-routing-lab/host1.clab.yml   # host1
 sudo containerlab deploy -t multinode/multinode-routing-lab/host2.clab.yml   # host2
+
+# Or deploy both halves via Ansible
+ansible-playbook ansible/labs.yml -e "lab=multinode-routing-lab op=deploy"
+ansible-playbook ansible/labs.yml -e "lab=multinode-load-test op=deploy"
 ```
 
-Host bootstrap (Docker, containerlab, vJunos images, VXLAN sysctls/MTU/firewall) lives under `ansible/` and is invoked with `ansible-playbook ansible/site.yml`. The playbook does not deploy labs — that stays manual / VS Code Containerlab extension. Canonical VNI map: `multinode/vni-allocation.md`.
+Host bootstrap (Docker, containerlab, vJunos images, VXLAN sysctls/MTU/firewall) lives under `ansible/` and is invoked with `ansible-playbook ansible/site.yml`. Lab lifecycle (deploy/destroy/inspect/save) uses `ansible/labs.yml -e "lab=<name> op=<op>"`. Canonical VNI map: `multinode/vni-allocation.md`.
