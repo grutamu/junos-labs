@@ -30,3 +30,31 @@ underlay_mtu: 1600
 mgmt_cidr: "0.0.0.0/0"
 
 # Peer underlay IPs each host must accept VXLAN from. Computed in firewall role from inventory.
+
+# Lab deployment configs — used by labs.yml
+# Single-host labs: specify 'host', 'topo', 'configs_subdir'
+# Multinode labs: specify 'hosts' dict mapping host → topology file
+lab_configs:
+  routing-lab:
+    host: lab-01
+    topo: routing-lab.clab.yml
+    configs_subdir: routing
+    remote_dir: /opt/labs/routing-lab
+
+  layer2-lab:
+    host: lab-01
+    topo: layer2-lab.clab.yml
+    configs_subdir: layer2
+    remote_dir: /opt/labs/layer2-lab
+
+  multinode-routing-lab:
+    hosts:
+      lab-01: host1.clab.yml
+      lab-02: host2.clab.yml
+    remote_dir: /opt/labs/multinode-routing-lab
+
+  multinode-layer2-lab:
+    hosts:
+      lab-01: host1.clab.yml
+      lab-02: host2.clab.yml
+    remote_dir: /opt/labs/multinode-layer2-lab
