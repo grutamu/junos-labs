@@ -84,9 +84,9 @@ ansible-playbook labs.yml -e "lab=<name> op=<op>"
 
 | `op` | What it does |
 |------|-------------|
-| `deploy` | Syncs lab files to host(s), runs `containerlab deploy` |
+| `deploy` | Destroys any existing state, syncs lab files, runs `containerlab deploy` (idempotent) |
 | `destroy` | Runs `containerlab destroy --cleanup` |
-| `restart` | destroy → re-sync → deploy in one shot |
+| `restart` | Alias for `deploy` — destroy + re-sync + deploy |
 | `save` | Runs `containerlab save` to write running node configs back to startup-config files |
 | `inspect` | Shows running container state — no changes made |
 

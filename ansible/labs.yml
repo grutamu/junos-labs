@@ -75,7 +75,7 @@
       ansible.builtin.shell:
         cmd: "containerlab destroy -t {{ _cfg.remote_dir }}/{{ _topo }} --cleanup 2>&1"
       register: _destroy_out
-      when: _active | bool and op in ['destroy', 'restart']
+      when: _active | bool and op in ['deploy', 'destroy', 'restart']
       changed_when: "'no containerlab containers found' not in _destroy_out.stdout"
       failed_when: _destroy_out.rc != 0
 
