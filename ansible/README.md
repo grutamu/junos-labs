@@ -30,7 +30,10 @@ roles/*
 
 1. Edit `inventory.yml` — replace `10.10.0.11` / `10.10.0.12` with your real host IPs.
 2. Edit `host_vars/lab-01.yml` and `host_vars/lab-02.yml` — set `underlay_ip` (the address the *peer* host will reach for VXLAN) and `underlay_iface` (the NIC carrying that IP).
-3. Edit `group_vars/all.yml` — set `mgmt_cidr` to your trusted management network. Choose `vrnetlab_source: registry` (default) or `tarball` if you have pre-built `.tar` images.
+3. Edit `group_vars/all.yml` — set `mgmt_cidr` to your trusted management network. Choose how vJunos images land on each host:
+   - `registry` — `docker pull` (only works if a registry actually hosts the images; the official vJunos images do not).
+   - `tarball` — load `*.tar` files from `vrnetlab_tarball_dir` on the controller.
+   - `peer` (default) — copy images from `vrnetlab_image_source_host` (default `lab-01`) over SSH to every other lab host. Use this when you've manually built the vrnetlab images on one host from the Juniper-supplied qcow2 and want to seed the rest. The source host must be able to `ssh root@<peer-ansible_host>` non-interactively (the play runs `docker save` on the source and streams the tarball to each target). Rebuilding the source host itself still has to be done by hand.
 4. Make sure you can `ssh root@<host>` without a password (key auth).
 
 ## Run

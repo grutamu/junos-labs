@@ -31,3 +31,66 @@
       community.docker.docker_image_load:
         path: "/var/tmp/{{ item.path | basename }}"
       loop: "{{ vrnetlab_tars.files }}"
+
+- name: Copy vJunos images from a peer host
+  when: vrnetlab_source == "peer"
+  vars:
+    _images:
+      - { name: "{{ vjunos_router_image }}", file: "vjunos-router.tar" }
+      - { name: "{{ vjunos_switch_image }}", file: "vjunos-switch.tar" }
+    _src: "{{ vrnetlab_image_source_host }}"
+  block:
+    - name: Check which vJunos images are already present on this host
+      community.docker.docker_image_info:
+        name: "{{ item.name }}"
+      loop: "{{ _images }}"
+      register: _img_info
+
+    - name: Build list of images this host is missing
+      ansible.builtin.set_fact:
+        _missing_images: >-
+          {{ _img_info.results
+             | selectattr('images', 'equalto', [])
+             | map(attribute='item')
+             | list }}
+
+    - name: Save missing images to tarballs on the source host
+      ansible.builtin.command:
+        cmd: "docker save -o /var/tmp/{{ item.file }} {{ item.name }}"
+        creates: "/var/tmp/{{ item.file }}"
+      delegate_to: "{{ _src }}"
+      loop: "{{ _missing_images }}"
+      when: inventory_hostname != _src
+
+    - name: Stream tarballs from source host to target host
+      ansible.builtin.shell:
+        cmd: >-
+          ssh -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              {{ hostvars[_src].ansible_user | default('root') }}@{{ hostvars[_src].ansible_host }}
+              'cat /var/tmp/{{ item.file }}'
+          > /var/tmp/{{ item.file }}
+        creates: "/var/tmp/{{ item.file }}"
+      loop: "{{ _missing_images }}"
+      when: inventory_hostname != _src
+
+    - name: Load tarballs into Docker on target host
+      community.docker.docker_image_load:
+        path: "/var/tmp/{{ item.file }}"
+      loop: "{{ _missing_images }}"
+      when: inventory_hostname != _src
+
+    - name: Remove staged tarball on target host
+      ansible.builtin.file:
+        path: "/var/tmp/{{ item.file }}"
+        state: absent
+      loop: "{{ _missing_images }}"
+      when: inventory_hostname != _src
+
+    - name: Remove staged tarball on source host
+      ansible.builtin.file:
+        path: "/var/tmp/{{ item.file }}"
+        state: absent
+      delegate_to: "{{ _src }}"
+      loop: "{{ _missing_images }}"
+      when: inventory_hostname != _src

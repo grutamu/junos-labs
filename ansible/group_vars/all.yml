@@ -5,10 +5,17 @@ containerlab_version: "0.59.0"
 vjunos_router_image: "vrnetlab/juniper_vjunos-router:25.4R1.12"
 vjunos_switch_image: "vrnetlab/juniper_vjunos-switch:25.4R1.12"
 
-# How vrnetlab images get on the host: "registry" (docker pull) or "tarball"
-vrnetlab_source: "registry"
+# How vrnetlab images get on the host:
+#   "registry" — docker pull (requires the images to exist in a registry; vJunos images do not)
+#   "tarball"  — load *.tar files from vrnetlab_tarball_dir on the controller
+#   "peer"     — copy images from another lab host that already has them built (see below)
+vrnetlab_source: "peer"
 # When vrnetlab_source == "tarball", path on the controller containing *.tar files
 # vrnetlab_tarball_dir: "/path/to/vrnetlab/tars"
+# When vrnetlab_source == "peer", inventory hostname of the host that already has the
+# images loaded (built manually from the Juniper-supplied qcow2). That host is skipped;
+# every other lab host has the images streamed from it over SSH and `docker load`ed.
+vrnetlab_image_source_host: "lab-01"
 
 # VXLAN underlay UDP port (containerlab default is 14789; the kernel default is 4789).
 # We use 4789 to match the Linux/RFC default. Must match in all topology files.

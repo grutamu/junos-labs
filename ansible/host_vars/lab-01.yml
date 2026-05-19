@@ -1,7 +1,8 @@
 ---
+ansible_host: 100.110.163.67
 # Underlay IP advertised to peers as VTEP source / SSH target.
 # Must match ansible_host or be reachable on the lab L2 segment.
 underlay_ip: "192.168.1.45"
 
 # NIC carrying VXLAN underlay traffic. Used to set MTU.
-underlay_iface: "eth0"
+underlay_iface: "eno1"
