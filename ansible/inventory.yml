@@ -6,8 +6,8 @@ all:
     lab_hosts:
       hosts:
         lab-01:
-          ansible_host: 10.10.0.11
+          ansible_host: 100.110.163.67
         lab-02:
-          ansible_host: 10.10.0.12
+          ansible_host: 100.122.128.16
         # lab-03:
         #   ansible_host: 10.10.0.13
