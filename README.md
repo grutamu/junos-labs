@@ -84,6 +84,12 @@ Bring hosts to a known-good state with the [Ansible playbook](ansible/README.md)
 
 ---
 
+## Authoring a New Lab
+
+See [docs/lab-authoring.md](docs/lab-authoring.md) for the full authoring guide: available images, host capacity limits, naming and addressing conventions, topology YAML format, startup config rules, multinode/VXLAN rules, Ansible registration, lab type skeletons, and a validation checklist.
+
+---
+
 ## Junos CLI Reminders
 
 ```

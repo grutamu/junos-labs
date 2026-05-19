@@ -5,7 +5,7 @@
 #   ansible-playbook labs.yml -e "lab=<name> op=<op>"
 #
 # Labs:    routing-lab  layer2-lab  multinode-routing-lab  multinode-layer2-lab
-# Ops:     deploy  destroy  save  inspect  restart
+# Ops:     deploy  destroy  cleanup  save  inspect  restart
 
 - name: Manage containerlab lab deployments
   hosts: lab_hosts
@@ -31,11 +31,11 @@
         that:
           - lab | length > 0
           - lab in lab_configs
-          - op in ['deploy', 'destroy', 'save', 'inspect', 'restart']
+          - op in ['deploy', 'destroy', 'cleanup', 'save', 'inspect', 'restart']
         fail_msg: |
           Usage: -e "lab=<name> op=<op>"
           Labs: {{ lab_configs.keys() | list | join('  ') }}
-          Ops:  deploy  destroy  save  inspect  restart
+          Ops:  deploy  destroy  cleanup  save  inspect  restart
       run_once: true
       delegate_to: localhost
 
@@ -73,18 +73,27 @@
 
     - name: Destroy lab
       ansible.builtin.shell:
-        cmd: "containerlab destroy -t {{ _cfg.remote_dir }}/{{ _topo }} --cleanup 2>&1"
+        cmd: "containerlab destroy -t {{ _topo }} 2>&1"
         chdir: "{{ _cfg.remote_dir }}"
       register: _destroy_out
       when: _active | bool and op in ['deploy', 'destroy', 'restart']
       changed_when: "'no containerlab containers found' not in _destroy_out.stdout"
       failed_when: _destroy_out.rc != 0
 
+    - name: Cleanup lab (destroy + remove runtime dir)
+      ansible.builtin.shell:
+        cmd: "containerlab destroy -t {{ _topo }} --cleanup 2>&1"
+        chdir: "{{ _cfg.remote_dir }}"
+      register: _cleanup_out
+      when: _active | bool and op == 'cleanup'
+      changed_when: "'no containerlab containers found' not in _cleanup_out.stdout"
+      failed_when: _cleanup_out.rc != 0
+
     # ── Deploy ────────────────────────────────────────────────────────────
 
     - name: Deploy lab
       ansible.builtin.shell:
-        cmd: "containerlab deploy -t {{ _cfg.remote_dir }}/{{ _topo }} 2>&1"
+        cmd: "containerlab deploy -t {{ _topo }} 2>&1"
         chdir: "{{ _cfg.remote_dir }}"
       register: _deploy_out
       when: _active | bool and op in ['deploy', 'restart']
@@ -94,7 +103,7 @@
 
     - name: Save node running configs
       ansible.builtin.shell:
-        cmd: "containerlab save -t {{ _cfg.remote_dir }}/{{ _topo }} 2>&1"
+        cmd: "containerlab save -t {{ _topo }} 2>&1"
         chdir: "{{ _cfg.remote_dir }}"
       register: _save_out
       when: _active | bool and op == 'save'
@@ -113,7 +122,7 @@
           containerlab inspect --name {{ lab }} --format json 2>/dev/null
           | grep -v '^time=' || echo '{"containers":[]}'
       register: _inspect_raw
-      when: _active | bool
+      when: _active | bool and op not in ['destroy', 'cleanup']
       changed_when: false
 
     - name: Show session manager SSH entries
@@ -127,5 +136,5 @@
           {{ '%-45s' | format(c.name) }}  ssh -J root@{{ _proxy }} admin@{{ c.ipv4_address | regex_replace('/.*', '') }}
           {% endfor %}
       when: >-
-        _active | bool and
+        _active | bool and op not in ['destroy', 'cleanup'] and
         (_inspect_raw.stdout | from_json).containers | default([]) | length > 0
