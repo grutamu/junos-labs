@@ -74,6 +74,7 @@
     - name: Destroy lab
       ansible.builtin.shell:
         cmd: "containerlab destroy -t {{ _cfg.remote_dir }}/{{ _topo }} --cleanup 2>&1"
+        chdir: "{{ _cfg.remote_dir }}"
       register: _destroy_out
       when: _active | bool and op in ['deploy', 'destroy', 'restart']
       changed_when: "'no containerlab containers found' not in _destroy_out.stdout"
@@ -84,6 +85,7 @@
     - name: Deploy lab
       ansible.builtin.shell:
         cmd: "containerlab deploy -t {{ _cfg.remote_dir }}/{{ _topo }} 2>&1"
+        chdir: "{{ _cfg.remote_dir }}"
       register: _deploy_out
       when: _active | bool and op in ['deploy', 'restart']
       changed_when: true
@@ -93,6 +95,7 @@
     - name: Save node running configs
       ansible.builtin.shell:
         cmd: "containerlab save -t {{ _cfg.remote_dir }}/{{ _topo }} 2>&1"
+        chdir: "{{ _cfg.remote_dir }}"
       register: _save_out
       when: _active | bool and op == 'save'
       changed_when: true
