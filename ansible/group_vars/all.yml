@@ -58,3 +58,9 @@ lab_configs:
       lab-01: host1.clab.yml
       lab-02: host2.clab.yml
     remote_dir: /opt/labs/multinode-layer2-lab
+
+  multinode-load-test:
+    hosts:
+      lab-01: host1.clab.yml
+      lab-02: host2.clab.yml
+    remote_dir: /opt/labs/multinode-load-test

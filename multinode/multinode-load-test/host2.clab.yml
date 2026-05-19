@@ -1,0 +1,91 @@
+# Multinode Load Test — host2 half (lab-02, 192.168.1.22)
+# Nodes on host2: r6–r10 in a pentagon ring
+# Local links (veth):
+#   r6:eth1 — r7:eth1   10.6.7.0/30
+#   r7:eth2 — r8:eth1   10.7.8.0/30
+#   r8:eth2 — r9:eth1   10.8.9.0/30
+#   r9:eth2 — r10:eth1  10.9.10.0/30
+#   r10:eth2 — r6:eth2  10.6.10.0/30  (ring closure)
+# Cross-host links (VXLAN to host1 at 192.168.1.45):
+#   r6:eth3  → r1  10.1.6.0/30   VNI 300
+#   r7:eth3  → r2  10.2.7.0/30   VNI 301
+#   r8:eth3  → r3  10.3.8.0/30   VNI 302
+#   r9:eth3  → r4  10.4.9.0/30   VNI 303
+#   r10:eth3 → r5  10.5.10.0/30  VNI 304
+#
+# Startup protocols: OSPF area 0 + BFD (all interfaces) + iBGP full mesh (AS 65000)
+# Interface mapping: eth1=ge-0/0/0, eth2=ge-0/0/1, eth3=ge-0/0/2
+# VNI table: ../vni-allocation.md
+
+name: multinode-load-test
+
+topology:
+  kinds:
+    juniper_vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r6:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r6.conf
+    r7:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r7.conf
+    r8:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r8.conf
+    r9:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r9.conf
+    r10:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r10.conf
+
+  links:
+    # Local ring (veth)
+    - endpoints: ["r6:eth1", "r7:eth1"]    # ge-0/0/0 — ge-0/0/0  10.6.7.0/30
+    - endpoints: ["r7:eth2", "r8:eth1"]    # ge-0/0/1 — ge-0/0/0  10.7.8.0/30
+    - endpoints: ["r8:eth2", "r9:eth1"]    # ge-0/0/1 — ge-0/0/0  10.8.9.0/30
+    - endpoints: ["r9:eth2", "r10:eth1"]   # ge-0/0/1 — ge-0/0/0  10.9.10.0/30
+    - endpoints: ["r10:eth2", "r6:eth2"]   # ge-0/0/1 — ge-0/0/1  10.6.10.0/30
+
+    # Cross-host VXLAN stitches to host1 (192.168.1.45)
+    - type: vxlan-stitch
+      endpoint:
+        node: r6
+        interface: eth3
+      remote: 192.168.1.45
+      vni: 300
+      udp-port: 4789
+
+    - type: vxlan-stitch
+      endpoint:
+        node: r7
+        interface: eth3
+      remote: 192.168.1.45
+      vni: 301
+      udp-port: 4789
+
+    - type: vxlan-stitch
+      endpoint:
+        node: r8
+        interface: eth3
+      remote: 192.168.1.45
+      vni: 302
+      udp-port: 4789
+
+    - type: vxlan-stitch
+      endpoint:
+        node: r9
+        interface: eth3
+      remote: 192.168.1.45
+      vni: 303
+      udp-port: 4789
+
+    - type: vxlan-stitch
+      endpoint:
+        node: r10
+        interface: eth3
+      remote: 192.168.1.45
+      vni: 304
+      udp-port: 4789

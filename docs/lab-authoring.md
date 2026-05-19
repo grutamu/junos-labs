@@ -32,8 +32,8 @@ Run `docs/update-capacity.sh` to regenerate this table after adding or modifying
 
 | Host | Ansible Host | vCPU | RAM (GB) | Max vJunos Nodes |
 |------|-------------|------|----------|-----------------|
-| lab-01 | 100.110.163.67 | 12 | 30 | 4 |
-| lab-02 | 100.122.128.16 | 16 | 30 | 4 |
+| lab-01 | 100.110.163.67 | 12 | 30 | 5 |
+| lab-02 | 100.122.128.16 | 16 | 30 | 5 |
 
 > To update: run `bash docs/update-capacity.sh` and replace the rows above with the output.
 
