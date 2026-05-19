@@ -71,6 +71,19 @@ SSH pattern: `ssh admin@clab-<lab-name>-<node>` (e.g. `clab-troubleshoot-ospf-r1
 
 ---
 
+## Multi-node Labs
+
+A separate set of labs designed to run **split across two containerlab hosts** on the same L2 segment, using VXLAN-stitched links. Single-host labs above are unchanged.
+
+| Lab | Topics | Topology |
+|-----|--------|----------|
+| [Multinode-Routing-Lab.md](multinode/Multinode-Routing-Lab.md) | OSPF / IS-IS / BGP across hosts | `multinode/multinode-routing-lab/host{1,2}.clab.yml` |
+| [Multinode-Layer2-Lab.md](multinode/Multinode-Layer2-Lab.md) | VLAN trunks + RSTP + VRRP across hosts | `multinode/multinode-layer2-lab/host{1,2}.clab.yml` |
+
+Bring hosts to a known-good state with the [Ansible playbook](ansible/README.md); see [multinode/README.md](multinode/README.md) for deploy mechanics and [multinode/vni-allocation.md](multinode/vni-allocation.md) for the canonical VNI map.
+
+---
+
 ## Junos CLI Reminders
 
 ```

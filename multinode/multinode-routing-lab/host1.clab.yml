@@ -1,0 +1,46 @@
+# Multinode Routing Lab — host1 half
+# Nodes on host1: r1, r2
+# Local link: r1:eth1 — r2:eth1 (10.0.12.0/30)
+# Cross-host links (VXLAN-stitched to host2):
+#   r1:eth2 → r3 on host2  (10.0.13.0/30, VNI 113)
+#   r2:eth2 → r4 on host2  (10.0.24.0/30, VNI 124)
+#
+# Lab guide: ../Multinode-Routing-Lab.md
+# VNI table:  ../vni-allocation.md
+
+name: multinode-routing-lab
+
+topology:
+  kinds:
+    juniper_vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r1:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r1.conf
+    r2:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r2.conf
+
+  links:
+    # Local veth on host1
+    - endpoints: ["r1:eth1", "r2:eth1"]  # 10.0.12.0/30
+
+    # Cross-host to r3 on host2 (VNI 113)
+    - type: vxlan-stitch
+      endpoint:
+        node: r1
+        interface: eth2
+      remote: 10.10.0.12      # host2 underlay IP — edit to match your env
+      vni: 113
+      dst-port: 4789
+
+    # Cross-host to r4 on host2 (VNI 124)
+    - type: vxlan-stitch
+      endpoint:
+        node: r2
+        interface: eth2
+      remote: 10.10.0.12
+      vni: 124
+      dst-port: 4789

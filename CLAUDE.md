@@ -91,3 +91,15 @@ sw2 eth3 (ge-0/0/2) → sw4 (redundant uplink)
 
 All routers: `vrnetlab/juniper_vjunos-router:25.4R1.12`  
 All switches: `vrnetlab/juniper_vjunos-switch:25.4R1.12`
+
+### Multi-Node Labs
+
+Separate, additive lab track under `multinode/`. Each multi-node lab has **one topology file per host** (e.g. `multinode/multinode-routing-lab/host1.clab.yml` and `host2.clab.yml`), wired together via `type: vxlan-stitch` links sharing a VNI on both sides. Single-host labs at the repo root are not modified — they continue to run standalone.
+
+```bash
+# Deploy each half on its host
+sudo containerlab deploy -t multinode/multinode-routing-lab/host1.clab.yml   # host1
+sudo containerlab deploy -t multinode/multinode-routing-lab/host2.clab.yml   # host2
+```
+
+Host bootstrap (Docker, containerlab, vJunos images, VXLAN sysctls/MTU/firewall) lives under `ansible/` and is invoked with `ansible-playbook ansible/site.yml`. The playbook does not deploy labs — that stays manual / VS Code Containerlab extension. Canonical VNI map: `multinode/vni-allocation.md`.

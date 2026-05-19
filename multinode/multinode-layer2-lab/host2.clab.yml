@@ -1,0 +1,57 @@
+# Multinode Layer 2 Lab — host2 half
+# Nodes on host2: sw3, sw4
+# Local link (veth):
+#   sw3:eth4 — sw4:eth4   (host-local trunk between access switches)
+# Cross-host links (VXLAN-stitched to host1):
+#   sw3:eth1 → sw1 on host1  (trunk VLANs 10/20/30, VNI 213)
+#   sw4:eth1 → sw1 on host1  (VRRP uplink, VNI 214)
+#   sw4:eth2 → sw2 on host1  (redundant uplink, VNI 224)
+#
+# Lab guide: ../Multinode-Layer2-Lab.md
+# VNI table:  ../vni-allocation.md
+
+name: multinode-layer2-lab
+
+topology:
+  kinds:
+    juniper_vjunosswitch:
+      image: vrnetlab/juniper_vjunos-switch:25.4R1.12
+
+  nodes:
+    sw3:
+      kind: juniper_vjunosswitch
+      startup-config: configs/sw3.conf
+    sw4:
+      kind: juniper_vjunosswitch
+      startup-config: configs/sw4.conf
+
+  links:
+    # Local veth between sw3 and sw4
+    - endpoints: ["sw3:eth4", "sw4:eth4"]
+
+    # Cross-host trunk sw3 → sw1 (VNI 213)
+    - type: vxlan-stitch
+      endpoint:
+        node: sw3
+        interface: eth1
+      remote: 10.10.0.11
+      vni: 213
+      dst-port: 4789
+
+    # Cross-host VRRP uplink sw4 → sw1 (VNI 214)
+    - type: vxlan-stitch
+      endpoint:
+        node: sw4
+        interface: eth1
+      remote: 10.10.0.11
+      vni: 214
+      dst-port: 4789
+
+    # Cross-host redundant uplink sw4 → sw2 (VNI 224)
+    - type: vxlan-stitch
+      endpoint:
+        node: sw4
+        interface: eth2
+      remote: 10.10.0.11
+      vni: 224
+      dst-port: 4789

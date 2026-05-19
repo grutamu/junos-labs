@@ -1,0 +1,33 @@
+---
+- name: Pull vJunos images from registry
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+    state: present
+  loop:
+    - "{{ vjunos_router_image }}"
+    - "{{ vjunos_switch_image }}"
+  when: vrnetlab_source == "registry"
+
+- name: Load vJunos images from tarballs
+  when: vrnetlab_source == "tarball"
+  block:
+    - name: Find image tarballs on controller
+      ansible.builtin.find:
+        paths: "{{ vrnetlab_tarball_dir }}"
+        patterns: "*.tar"
+      delegate_to: localhost
+      run_once: true
+      register: vrnetlab_tars
+
+    - name: Copy tarballs to host
+      ansible.builtin.copy:
+        src: "{{ item.path }}"
+        dest: "/var/tmp/{{ item.path | basename }}"
+        mode: "0644"
+      loop: "{{ vrnetlab_tars.files }}"
+
+    - name: Load tarballs into Docker
+      community.docker.docker_image_load:
+        path: "/var/tmp/{{ item.path | basename }}"
+      loop: "{{ vrnetlab_tars.files }}"

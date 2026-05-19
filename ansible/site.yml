@@ -1,0 +1,10 @@
+---
+- name: Bootstrap containerlab hosts
+  hosts: lab_hosts
+  gather_facts: true
+  roles:
+    - common
+    - docker
+    - containerlab
+    - vrnetlab_images
+    - firewall

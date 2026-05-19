@@ -1,0 +1,24 @@
+---
+- name: Check installed containerlab version
+  ansible.builtin.command: containerlab version
+  register: clab_version_check
+  changed_when: false
+  failed_when: false
+
+- name: Install or update containerlab
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -sL https://get.containerlab.dev | bash -s -- -v {{ containerlab_version }}
+  args:
+    executable: /bin/bash
+  when: clab_version_check.rc != 0 or containerlab_version not in clab_version_check.stdout
+  changed_when: true
+
+- name: Verify containerlab is callable
+  ansible.builtin.command: containerlab version
+  register: clab_verify
+  changed_when: false
+
+- name: Show containerlab version
+  ansible.builtin.debug:
+    msg: "{{ clab_verify.stdout_lines | select('match', '.*version.*') | list }}"

@@ -1,0 +1,27 @@
+---
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Allow SSH from management network
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+    src: "{{ mgmt_cidr }}"
+
+- name: Allow VXLAN from peer lab hosts
+  community.general.ufw:
+    rule: allow
+    port: "{{ vxlan_udp_port }}"
+    proto: udp
+    src: "{{ hostvars[item].underlay_ip }}"
+  loop: "{{ groups['lab_hosts'] | difference([inventory_hostname]) }}"
+  when: hostvars[item].underlay_ip is defined
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled
+    policy: deny
+    direction: incoming

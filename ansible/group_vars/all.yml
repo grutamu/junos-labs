@@ -1,0 +1,25 @@
+---
+# Pinned versions
+containerlab_version: "0.59.0"
+
+vjunos_router_image: "vrnetlab/juniper_vjunos-router:25.4R1.12"
+vjunos_switch_image: "vrnetlab/juniper_vjunos-switch:25.4R1.12"
+
+# How vrnetlab images get on the host: "registry" (docker pull) or "tarball"
+vrnetlab_source: "registry"
+# When vrnetlab_source == "tarball", path on the controller containing *.tar files
+# vrnetlab_tarball_dir: "/path/to/vrnetlab/tars"
+
+# VXLAN underlay UDP port (containerlab default is 14789; the kernel default is 4789).
+# We use 4789 to match the Linux/RFC default. Must match in all topology files.
+vxlan_udp_port: 4789
+
+# Underlay MTU on the NIC carrying VXLAN traffic.
+# 1600 leaves room for the 50-byte VXLAN/UDP/IP overhead with default 1500 inner MTU.
+# Bump to 9000 if your switch supports jumbo frames end-to-end.
+underlay_mtu: 1600
+
+# Mgmt CIDR allowed to SSH in via ufw. Tighten before applying.
+mgmt_cidr: "0.0.0.0/0"
+
+# Peer underlay IPs each host must accept VXLAN from. Computed in firewall role from inventory.
