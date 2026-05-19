@@ -14,12 +14,12 @@ Hands-on Junos JNCIS-ENT lab suite. Contains ContainerLab topology files, base s
 
 ```bash
 # Deploy
-sudo containerlab deploy -t routing-lab.clab.yml
-sudo containerlab deploy -t layer2-lab.clab.yml
+sudo containerlab deploy -t singlenode/routing-lab.clab.yml
+sudo containerlab deploy -t singlenode/layer2-lab.clab.yml
 
 # Destroy
-sudo containerlab destroy -t routing-lab.clab.yml
-sudo containerlab destroy -t layer2-lab.clab.yml
+sudo containerlab destroy -t singlenode/routing-lab.clab.yml
+sudo containerlab destroy -t singlenode/layer2-lab.clab.yml
 
 # List running labs
 sudo containerlab inspect
@@ -35,13 +35,13 @@ ssh admin@clab-layer2-lab-sw1
 
 | File | Nodes | Covers |
 |------|-------|--------|
-| `routing-lab.clab.yml` | r1–r4 (vJunos-router) | OSPF, IS-IS, BGP, Policy, CoS |
-| `layer2-lab.clab.yml` | sw1–sw4 (vJunos-switch) | VLANs, STP, LAG, IRB, VRRP |
+| `singlenode/routing-lab.clab.yml` | r1–r4 (vJunos-router) | OSPF, IS-IS, BGP, Policy, CoS |
+| `singlenode/layer2-lab.clab.yml` | sw1–sw4 (vJunos-switch) | VLANs, STP, LAG, IRB, VRRP |
 
 ### Startup Configs
 
 ```
-configs/
+singlenode/configs/
   routing/   r1.conf – r4.conf   interfaces + loopbacks + router-id (no protocols)
   layer2/    sw1.conf – sw4.conf  hostname + ssh only
 ```
@@ -94,7 +94,7 @@ All switches: `vrnetlab/juniper_vjunos-switch:25.4R1.12`
 
 ### Multi-Node Labs
 
-Separate, additive lab track under `multinode/`. Each multi-node lab has **one topology file per host** (e.g. `multinode/multinode-routing-lab/host1.clab.yml` and `host2.clab.yml`), wired together via `type: vxlan-stitch` links sharing a VNI on both sides. Single-host labs at the repo root are not modified — they continue to run standalone.
+Separate, additive lab track under `multinode/`. Each multi-node lab has **one topology file per host** (e.g. `multinode/multinode-routing-lab/host1.clab.yml` and `host2.clab.yml`), wired together via `type: vxlan-stitch` links sharing a VNI on both sides. Single-host labs live under `singlenode/` and continue to run standalone.
 
 ```bash
 # Deploy each half on its host

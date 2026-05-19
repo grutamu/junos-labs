@@ -58,13 +58,13 @@
 
     - name: Sync single-node lab topology file
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../{{ _cfg.topo }}"
+        src: "{{ playbook_dir }}/../singlenode/{{ _cfg.topo }}"
         dest: "{{ _cfg.remote_dir }}/"
       when: _active | bool and not (_multinode | bool) and op in ['deploy', 'restart']
 
     - name: Sync single-node lab startup configs
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../configs/{{ _cfg.configs_subdir }}"
+        src: "{{ playbook_dir }}/../singlenode/configs/{{ _cfg.configs_subdir }}"
         dest: "{{ _cfg.remote_dir }}/configs/"
         mode: preserve
       when: _active | bool and not (_multinode | bool) and op in ['deploy', 'restart']
