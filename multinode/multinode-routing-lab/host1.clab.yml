@@ -32,15 +32,15 @@ topology:
       endpoint:
         node: r1
         interface: eth2
-      remote: 10.10.0.12      # host2 underlay IP — edit to match your env
+      remote: 192.168.1.22    # host2 underlay IP
       vni: 113
-      dst-port: 4789
+      udp-port: 4789
 
     # Cross-host to r4 on host2 (VNI 124)
     - type: vxlan-stitch
       endpoint:
         node: r2
         interface: eth2
-      remote: 10.10.0.12
+      remote: 192.168.1.22
       vni: 124
-      dst-port: 4789
+      udp-port: 4789

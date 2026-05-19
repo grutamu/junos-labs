@@ -38,7 +38,7 @@ topology:
         interface: eth3
       remote: 10.10.0.12
       vni: 213
-      dst-port: 4789
+      udp-port: 4789
 
     # Cross-host trunk sw1 → sw4 (VRRP uplink, VNI 214)
     - type: vxlan-stitch
@@ -47,7 +47,7 @@ topology:
         interface: eth4
       remote: 10.10.0.12
       vni: 214
-      dst-port: 4789
+      udp-port: 4789
 
     # Cross-host redundant uplink sw2 → sw4 (VNI 224)
     - type: vxlan-stitch
@@ -56,4 +56,4 @@ topology:
         interface: eth3
       remote: 10.10.0.12
       vni: 224
-      dst-port: 4789
+      udp-port: 4789
