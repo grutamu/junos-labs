@@ -1,4 +1,16 @@
 ---
+- name: Remove Ansible PPA files (no release for Ubuntu 25.10+)
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d
+    patterns: "ansible-ubuntu-ansible*"
+  register: _ansible_ppa_files
+
+- name: Delete Ansible PPA files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ _ansible_ppa_files.files }}"
+
 - name: Install base packages
   ansible.builtin.apt:
     name:
@@ -40,7 +52,17 @@
       net.bridge.bridge-nf-call-ip6tables = 0
   notify: Reload sysctl
 
-- name: Set underlay NIC MTU
-  ansible.builtin.command: "ip link set dev {{ underlay_iface }} mtu {{ underlay_mtu }}"
-  changed_when: false
+- name: Configure underlay NIC MTU via netplan
+  ansible.builtin.copy:
+    dest: /etc/netplan/99-underlay-mtu.yaml
+    mode: "0600"
+    content: |
+      network:
+        version: 2
+        ethernets:
+          {{ underlay_iface }}:
+            mtu: {{ underlay_mtu }}
   when: underlay_iface is defined
+  notify:
+    - Apply netplan
+    - Set MTU now

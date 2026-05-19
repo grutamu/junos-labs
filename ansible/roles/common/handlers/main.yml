@@ -2,3 +2,12 @@
 - name: Reload sysctl
   ansible.builtin.command: sysctl --system
   changed_when: false
+
+- name: Apply netplan
+  ansible.builtin.command: netplan apply
+  changed_when: false
+
+- name: Set MTU now
+  ansible.builtin.command: "ip link set dev {{ underlay_iface }} mtu {{ underlay_mtu }}"
+  changed_when: false
+  when: underlay_iface is defined

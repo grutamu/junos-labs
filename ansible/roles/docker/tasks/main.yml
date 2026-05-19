@@ -1,4 +1,15 @@
 ---
+- name: Remove conflicting Ubuntu Docker packages
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose
+      - docker-compose-v2
+      - containerd
+      - runc
+    state: absent
+    purge: true
+
 - name: Ensure apt keyrings dir exists
   ansible.builtin.file:
     path: /etc/apt/keyrings
@@ -14,9 +25,10 @@
 
 - name: Add Docker apt repository
   ansible.builtin.apt_repository:
-    repo: "deb [arch={{ ansible_architecture | replace('x86_64','amd64') | replace('aarch64','arm64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    repo: "deb [arch={{ ansible_facts['architecture'] | replace('x86_64','amd64') | replace('aarch64','arm64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable"
     filename: docker
     state: present
+  check_mode: false
 
 - name: Install Docker engine
   ansible.builtin.apt:
@@ -28,6 +40,7 @@
       - docker-compose-plugin
     state: present
     update_cache: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Enable and start Docker
   ansible.builtin.service:

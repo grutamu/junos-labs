@@ -62,15 +62,20 @@
       loop: "{{ _missing_images }}"
       when: inventory_hostname != _src
 
-    - name: Stream tarballs from source host to target host
-      ansible.builtin.shell:
-        cmd: >-
-          ssh -o StrictHostKeyChecking=no
-              -o UserKnownHostsFile=/dev/null
-              {{ hostvars[_src].ansible_user | default('root') }}@{{ hostvars[_src].ansible_host }}
-              'cat /var/tmp/{{ item.file }}'
-          > /var/tmp/{{ item.file }}
-        creates: "/var/tmp/{{ item.file }}"
+    - name: Fetch tarballs from source host to Ansible controller
+      ansible.builtin.fetch:
+        src: "/var/tmp/{{ item.file }}"
+        dest: "/tmp/{{ item.file }}"
+        flat: true
+      delegate_to: "{{ _src }}"
+      loop: "{{ _missing_images }}"
+      when: inventory_hostname != _src
+
+    - name: Copy tarballs from controller to target host
+      ansible.builtin.copy:
+        src: "/tmp/{{ item.file }}"
+        dest: "/var/tmp/{{ item.file }}"
+        mode: "0644"
       loop: "{{ _missing_images }}"
       when: inventory_hostname != _src
 
@@ -92,5 +97,13 @@
         path: "/var/tmp/{{ item.file }}"
         state: absent
       delegate_to: "{{ _src }}"
+      loop: "{{ _missing_images }}"
+      when: inventory_hostname != _src
+
+    - name: Remove tarballs cached on Ansible controller
+      ansible.builtin.file:
+        path: "/tmp/{{ item.file }}"
+        state: absent
+      delegate_to: localhost
       loop: "{{ _missing_images }}"
       when: inventory_hostname != _src
