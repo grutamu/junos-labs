@@ -103,6 +103,7 @@ Separate, additive lab track under `multinode/`. Each multi-node lab has **one t
 | `multinode-routing-lab` | r1–r2 (host1), r3–r4 (host2) | OSPF, IS-IS, BGP across hosts |
 | `multinode-layer2-lab` | sw1–sw2 (host1), sw3–sw4 (host2) | VLANs, LAG, RSTP, VRRP across hosts |
 | `multinode-load-test` | r1–r5 (host1), r6–r10 (host2) | OSPF + BFD + iBGP full mesh — host capacity stress test |
+| `pe-lab` | r5,r6,pc2 (lab-01/host1), r1–r4,pc1 (lab-02/host2) | Dual-PE / MPLS L3VPN — PE1, PE2, P router, CE1, CE2, Linux hosts |
 
 ```bash
 # Deploy each half on its host (manual)

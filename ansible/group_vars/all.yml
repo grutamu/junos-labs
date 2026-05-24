@@ -64,3 +64,9 @@ lab_configs:
       lab-01: host1.clab.yml
       lab-02: host2.clab.yml
     remote_dir: /opt/labs/multinode-load-test
+
+  pe-lab:
+    hosts:
+      lab-01: host1.clab.yml    # r5, r6, pc2  (2 vJunos)
+      lab-02: host2.clab.yml    # r1, r2, r3, r4, pc1  (4 vJunos — at lab-02 capacity)
+    remote_dir: /opt/labs/pe-lab

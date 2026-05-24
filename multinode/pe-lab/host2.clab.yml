@@ -1,0 +1,75 @@
+# PE Lab — host2 half  (runs on lab-02)
+# Nodes on host2: r1 (PE1/vMX1), r2 (PE2/vMX2), r3 (CE1/vMX11), r4 (CE2/vMX12), pc1 (host7)
+#
+# Interface mapping: eth1=ge-0/0/0, eth2=ge-0/0/1, eth3=ge-0/0/2, eth4=ge-0/0/3, eth5=ge-0/0/4
+#
+# Addressing:
+#   r1 lo0: 1.1.1.1/32      r2 lo0: 2.2.2.2/32
+#   r3 lo0: 11.11.11.11/32  r4 lo0: 12.12.12.12/32
+#
+#   r1 ge-0/0/0 — r2 ge-0/0/0 : 192.168.12.1  — 192.168.12.2   /24  (PE1–PE2, dual-stack 2001:12:dead:beef::/64)
+#   r1 ge-0/0/1 — pc1          : 192.168.17.1  — 192.168.17.100 /24  (PE1 host access)
+#   r2 ge-0/0/3 — r3 ge-0/0/0 : 172.16.23.2   — 172.16.23.3    /24  (PE2–CE1)
+#   r2 ge-0/0/4 — r4 ge-0/0/0 : 172.16.24.2   — 172.16.24.4    /24  (PE2–CE2)
+#   r3 ge-0/0/1 — r4 ge-0/0/1 : 172.16.34.3   — 172.16.34.4    /24  (CE1–CE2)
+#
+# Cross-host links (VXLAN-stitched to host1 on lab-01):
+#   r2:eth2 → r5 on host1  (172.16.25.0/24, VNI 425)  r2 ge-0/0/1
+#   r2:eth3 → r5 on host1  (172.16.52.0/24, VNI 452)  r2 ge-0/0/2
+#
+# Lab guide: ../PE-Lab.md
+# VNI table:  ../vni-allocation.md
+
+name: pe-lab
+
+topology:
+  kinds:
+    juniper_vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+    linux:
+      image: alpine:latest
+
+  nodes:
+    r1:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r1.conf
+    r2:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r2.conf
+    r3:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r3.conf
+    r4:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r4.conf
+    pc1:
+      kind: linux
+      exec:
+        - ip addr add 192.168.17.100/24 dev eth1
+        - ip route add default via 192.168.17.1
+
+  links:
+    # Local veth on host2
+    - endpoints: ["r1:eth1", "r2:eth1"]   # r1 ge-0/0/0 — r2 ge-0/0/0   192.168.12.0/24
+    - endpoints: ["pc1:eth1", "r1:eth2"]  # pc1         — r1 ge-0/0/1   192.168.17.0/24
+    - endpoints: ["r2:eth4", "r3:eth1"]   # r2 ge-0/0/3 — r3 ge-0/0/0   172.16.23.0/24
+    - endpoints: ["r2:eth5", "r4:eth1"]   # r2 ge-0/0/4 — r4 ge-0/0/0   172.16.24.0/24
+    - endpoints: ["r3:eth2", "r4:eth2"]   # r3 ge-0/0/1 — r4 ge-0/0/1   172.16.34.0/24
+
+    # Cross-host to r5 on host1 (PE2→P first link, VNI 425)
+    - type: vxlan-stitch
+      endpoint:
+        node: r2
+        interface: eth2
+      remote: 192.168.1.45    # host1 (lab-01) underlay IP
+      vni: 425
+      udp-port: 4789
+
+    # Cross-host to r5 on host1 (PE2→P second link, VNI 452)
+    - type: vxlan-stitch
+      endpoint:
+        node: r2
+        interface: eth3
+      remote: 192.168.1.45    # host1 (lab-01) underlay IP
+      vni: 452
+      udp-port: 4789

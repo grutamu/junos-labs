@@ -1,13 +1,3 @@
-# Multinode Routing Lab — host1 half
-# Nodes on host1: r1, r2
-# Local link: r1:eth1 — r2:eth1 (10.0.12.0/30)
-# Cross-host links (VXLAN-stitched to host2):
-#   r1:eth2 → r3 on host2  (10.0.13.0/30, VNI 113)
-#   r2:eth2 → r4 on host2  (10.0.24.0/30, VNI 124)
-#
-# Lab guide: ../Multinode-Routing-Lab.md
-# VNI table:  ../vni-allocation.md
-
 name: multinode-routing-lab
 
 topology:
@@ -16,31 +6,35 @@ topology:
       image: vrnetlab/juniper_vjunos-router:25.4R1.12
 
   nodes:
-    r1:
+    cust-r1:
       kind: juniper_vjunosrouter
-      startup-config: configs/r1.conf
-    r2:
+      startup-config: configs/cust-r1.conf
+    pe1:
       kind: juniper_vjunosrouter
-      startup-config: configs/r2.conf
+      startup-config: configs/pe1.conf
+    pe2:
+      kind: juniper_vjunosrouter
+      startup-config: configs/pe2.conf
 
   links:
     # Local veth on host1
-    - endpoints: ["r1:eth1", "r2:eth1"]  # 10.0.12.0/30
+    - endpoints: ["pe1:eth2", "pe2:eth1"]
+    - endpoints: ["pe2:eth3", "cust-r1:eth1"]
+
+    # Cross-host to r5 on host2 (VNI 124)
+    - type: vxlan-stitch
+      endpoint:
+        node: pe2
+        interface: eth2
+      remote: 192.168.1.22
+      vni: 123
+      udp-port: 4789
 
     # Cross-host to r3 on host2 (VNI 113)
     - type: vxlan-stitch
       endpoint:
-        node: r1
-        interface: eth2
+        node: pe1
+        interface: eth1
       remote: 192.168.1.22    # host2 underlay IP
-      vni: 113
-      udp-port: 4789
-
-    # Cross-host to r4 on host2 (VNI 124)
-    - type: vxlan-stitch
-      endpoint:
-        node: r2
-        interface: eth2
-      remote: 192.168.1.22
-      vni: 124
+      vni: 115
       udp-port: 4789
