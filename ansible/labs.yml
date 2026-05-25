@@ -24,6 +24,7 @@
          if not (_multinode | bool) and inventory_hostname == _cfg.get('host', '')
          else '' }}
     _active: "{{ _topo | length > 0 }}"
+    _bridges: "{{ _cfg.get('pre_deploy_bridges', {}).get(inventory_hostname, []) }}"
 
   pre_tasks:
     - name: Validate inputs
@@ -88,6 +89,22 @@
       when: _active | bool and op == 'cleanup'
       changed_when: "'no containerlab containers found' not in _cleanup_out.stdout"
       failed_when: _cleanup_out.rc != 0
+
+    # ── Host bridges (for kind: bridge nodes) ─────────────────────────────
+
+    - name: Ensure lab bridges exist on host
+      ansible.builtin.shell:
+        cmd: "ip link show {{ item }} >/dev/null 2>&1 || (ip link add name {{ item }} type bridge && ip link set {{ item }} up)"
+      loop: "{{ _bridges }}"
+      when: _active | bool and op in ['deploy', 'restart'] and _bridges | length > 0
+      changed_when: false
+
+    - name: Remove lab bridges from host
+      ansible.builtin.shell:
+        cmd: "ip link show {{ item }} >/dev/null 2>&1 && ip link delete {{ item }} || true"
+      loop: "{{ _bridges }}"
+      when: _active | bool and op == 'cleanup' and _bridges | length > 0
+      changed_when: false
 
     # ── Deploy ────────────────────────────────────────────────────────────
 

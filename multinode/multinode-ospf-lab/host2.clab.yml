@@ -1,0 +1,25 @@
+name: multinode-ospf-lab
+
+topology:
+  kinds:
+    juniper_vjunosrouter:
+      image: vrnetlab/juniper_vjunos-router:25.4R1.12
+
+  nodes:
+    r5:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r5.conf
+    r6:
+      kind: juniper_vjunosrouter
+      startup-config: configs/r6.conf
+
+  links:
+    - endpoints: ["r5:eth2", "r6:eth1"]
+
+    - type: vxlan-stitch
+      endpoint:
+        node: r5
+        interface: eth1
+      remote: 192.168.1.45
+      vni: 123
+      udp-port: 4789

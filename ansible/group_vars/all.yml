@@ -53,6 +53,26 @@ lab_configs:
       lab-02: host2.clab.yml
     remote_dir: /opt/labs/multinode-routing-lab
 
+  multinode-ospf-lab:
+    hosts:
+      lab-01: host1.clab.yml
+      lab-02: host2.clab.yml
+    remote_dir: /opt/labs/multinode-ospf-lab
+    # Linux bridges that must exist on the host before deploy (kind: bridge nodes).
+    # Created on deploy/restart, removed on cleanup. Per-host with a dict.
+    pre_deploy_bridges:
+      lab-01: [sw]
+
+  multinode-isis-lab:
+    hosts:
+      lab-01: host1.clab.yml
+      lab-02: host2.clab.yml
+    remote_dir: /opt/labs/multinode-isis-lab
+    # Linux bridges that must exist on the host before deploy (kind: bridge nodes).
+    # Created on deploy/restart, removed on cleanup. Per-host with a dict.
+    pre_deploy_bridges:
+      lab-01: [sw]
+
   multinode-layer2-lab:
     hosts:
       lab-01: host1.clab.yml
