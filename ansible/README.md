@@ -80,6 +80,7 @@ ansible-playbook labs.yml -e "lab=<name> op=<op>"
 | `routing-lab` | 4x vJunos-router, square topology — OSPF, IS-IS, BGP, Policy, CoS |
 | `layer2-lab` | 4x vJunos-switch — VLANs, STP, LAG, IRB, VRRP |
 | `multinode-routing-lab` | Same routing topology split across two hosts via VXLAN |
+| `multinode-advanced-ospf-lab` | 7-node two-company OSPF (Area 0 + Area 50), r1–r4 / r5–r7 split across two hosts via VXLAN |
 | `multinode-layer2-lab` | Same layer2 topology split across two hosts via VXLAN |
 | `multinode-load-test` | 10-node dual-pentagon (r1–r5 / r6–r10), OSPF + BFD + iBGP full mesh — host capacity stress test |
 

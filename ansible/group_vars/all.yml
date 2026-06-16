@@ -1,6 +1,6 @@
 ---
 # Pinned versions
-containerlab_version: "0.59.0"
+containerlab_version: "0.75.0"
 
 vjunos_router_image: "vrnetlab/juniper_vjunos-router:25.4R1.12"
 vjunos_switch_image: "vrnetlab/juniper_vjunos-switch:25.4R1.12"
@@ -72,6 +72,13 @@ lab_configs:
     # Created on deploy/restart, removed on cleanup. Per-host with a dict.
     pre_deploy_bridges:
       lab-01: [sw]
+
+  multinode-advanced-ospf-lab:
+    hosts:
+      lab-01: host1.clab.yml    # r1, r2, r3, r4  (Company A — Area 0 + Area 50)
+      lab-02: host2.clab.yml    # r5, r6, r7      (Company B — Area 0)
+    remote_dir: /opt/labs/multinode-advanced-ospf-lab
+    # All point-to-point links — no kind: bridge node, so no pre_deploy_bridges.
 
   multinode-layer2-lab:
     hosts:

@@ -4,7 +4,9 @@
 # Usage:
 #   ansible-playbook labs.yml -e "lab=<name> op=<op>"
 #
-# Labs:    routing-lab  layer2-lab  multinode-routing-lab  multinode-layer2-lab  multinode-load-test
+# Labs:    routing-lab  layer2-lab  multinode-routing-lab  multinode-ospf-lab
+#          multinode-isis-lab  multinode-advanced-ospf-lab  multinode-layer2-lab
+#          multinode-load-test  pe-lab
 # Ops:     deploy  destroy  cleanup  save  inspect  restart
 
 - name: Manage containerlab lab deployments
@@ -41,6 +43,27 @@
       delegate_to: localhost
 
   tasks:
+    # ── Destroy existing deployment first (deploy/restart) ───────────────────
+    # Tear down before the file sync so the previous deployment's vJunos QEMU VMs
+    # aren't pegging the host CPU during the transfer — on CPU-constrained hosts a
+    # saturated box starves sshd and the sync dies with "Data could not be sent".
+    # Guarded by a stat check so a first-ever deploy (no remote topology yet) is fine.
+
+    - name: Check for existing remote topology
+      ansible.builtin.stat:
+        path: "{{ _cfg.remote_dir }}/{{ _topo }}"
+      register: _remote_topo
+      when: _active | bool and op in ['deploy', 'restart']
+
+    - name: Destroy existing lab before sync
+      ansible.builtin.shell:
+        cmd: "containerlab destroy -t {{ _topo }} 2>&1"
+        chdir: "{{ _cfg.remote_dir }}"
+      register: _predestroy_out
+      when: _active | bool and op in ['deploy', 'restart'] and _remote_topo.stat.exists | default(false)
+      changed_when: "'no containerlab containers found' not in _predestroy_out.stdout"
+      failed_when: _predestroy_out.rc != 0
+
     # ── File sync ──────────────────────────────────────────────────────────
 
     - name: Ensure remote lab directory exists
@@ -70,14 +93,14 @@
         mode: preserve
       when: _active | bool and not (_multinode | bool) and op in ['deploy', 'restart']
 
-    # ── Destroy ───────────────────────────────────────────────────────────
+    # ── Destroy (op=destroy only; deploy/restart destroy up front, above) ─────
 
     - name: Destroy lab
       ansible.builtin.shell:
         cmd: "containerlab destroy -t {{ _topo }} 2>&1"
         chdir: "{{ _cfg.remote_dir }}"
       register: _destroy_out
-      when: _active | bool and op in ['deploy', 'destroy', 'restart']
+      when: _active | bool and op == 'destroy'
       changed_when: "'no containerlab containers found' not in _destroy_out.stdout"
       failed_when: _destroy_out.rc != 0
 
@@ -144,7 +167,8 @@
 
     - name: Show session manager SSH entries
       vars:
-        _containers: "{{ (_inspect_raw.stdout | from_json).containers | default([]) }}"
+        # containerlab <0.69 emits {"containers":[...]}; >=0.69 emits {"<lab-name>":[...]}.
+        _containers: "{{ (_inspect_raw.stdout | from_json).containers | default((_inspect_raw.stdout | from_json)[lab] | default([])) }}"
         _proxy: "{{ hostvars[inventory_hostname].ansible_host }}"
       ansible.builtin.debug:
         msg: |
@@ -154,4 +178,4 @@
           {% endfor %}
       when: >-
         _active | bool and op not in ['destroy', 'cleanup'] and
-        (_inspect_raw.stdout | from_json).containers | default([]) | length > 0
+        _containers | length > 0
