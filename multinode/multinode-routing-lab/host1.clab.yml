@@ -20,6 +20,7 @@ topology:
     # Local veth on host1
     - endpoints: ["pe1:eth2", "pe2:eth1"]
     - endpoints: ["pe2:eth3", "cust-r1:eth1"]
+    - endpoints: ["pe1:eth3", "cust-r1:eth2"]
 
     # Cross-host to r5 on host2 (VNI 124)
     - type: vxlan-stitch
