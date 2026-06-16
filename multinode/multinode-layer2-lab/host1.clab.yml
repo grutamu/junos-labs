@@ -36,7 +36,7 @@ topology:
       endpoint:
         node: sw1
         interface: eth3
-      remote: 10.10.0.12
+      remote: 192.168.1.22    # host2 (lab-02) underlay IP
       vni: 213
       udp-port: 4789
 
@@ -45,7 +45,7 @@ topology:
       endpoint:
         node: sw1
         interface: eth4
-      remote: 10.10.0.12
+      remote: 192.168.1.22    # host2 (lab-02) underlay IP
       vni: 214
       udp-port: 4789
 
@@ -54,6 +54,6 @@ topology:
       endpoint:
         node: sw2
         interface: eth3
-      remote: 10.10.0.12
+      remote: 192.168.1.22    # host2 (lab-02) underlay IP
       vni: 224
       udp-port: 4789
